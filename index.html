@@ -106,6 +106,11 @@
   .statline .lbl small{color:var(--muted);font-weight:400}
   .statline .val{font-size:12px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
   .statline .val.none{color:var(--warn)}
+  .avgstrip{display:flex;gap:10px;margin:0 0 14px}
+  .avgcell{flex:1;background:var(--panel2);border-radius:12px;padding:8px 6px;text-align:center}
+  .avgcell span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+  .avgcell b{font-size:17px;font-variant-numeric:tabular-nums}
+  .avgcell small{display:block;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:1px}
   .daysel{text-align:center;font-size:16px;font-weight:800;margin:0 0 6px}
   .daysel small{display:inline-block;font-size:10px;font-weight:800;color:#fff;background:var(--accent);border-radius:10px;padding:1px 8px;margin-left:6px;text-transform:uppercase;letter-spacing:.08em;vertical-align:2px}
   .calcell.has .cring{cursor:pointer}
@@ -129,6 +134,7 @@
 
 <div class="wrap">
   <div class="card">
+    <div class="avgstrip" id="avgStrip"></div>
     <div class="daysel" id="ringDate"></div>
     <div class="heroflex">
       <div class="bigringbox">
@@ -366,6 +372,7 @@ function render(){
   const ks=document.getElementById('known');ks.innerHTML='';
   DB.known.forEach((k,idx)=>{const o=document.createElement('option');o.value=idx;o.textContent=`${k.name} — ${r(k.kcal)} kcal`;ks.appendChild(o);});
   renderHero();
+  renderAvgStrip();
   renderTrends();
   renderCal();
   save();
@@ -475,6 +482,19 @@ function renderCal(){
 }
 
 function avgOver(ds){const t={kcal:0,protein_g:0,fat_g:0,carb_g:0,fiber_g:0};ds.forEach(d=>{const tt=totals(withSupp(DB.days[d].items));F.forEach(f=>t[f]+=tt[f]);});const n=ds.length||1;F.forEach(f=>t[f]/=n);return t;}
+function renderAvgStrip(){
+  const el=document.getElementById('avgStrip');if(!el)return;
+  const complete=dates().filter(d=>DB.days[d].status==='complete');
+  const c=new Date(localDate()+'T00:00:00');c.setDate(c.getDate()-6);
+  const cutoff=c.getFullYear()+'-'+String(c.getMonth()+1).padStart(2,'0')+'-'+String(c.getDate()).padStart(2,'0');
+  const last7=complete.filter(d=>d>=cutoff);
+  const cell=(label,ds)=>{
+    if(!ds.length)return `<div class="avgcell"><span>${label}</span><b>—</b><small>no closed days</small></div>`;
+    const a=avgOver(ds);
+    return `<div class="avgcell"><span>${label} · n=${ds.length}</span><b>${r(a.kcal)}</b><small>kcal · ${r(a.protein_g)}P ${r(a.fat_g)}F ${r(a.carb_g)}C · ${r(a.fiber_g)} fib</small></div>`;
+  };
+  el.innerHTML=cell('7-day avg',last7)+cell('All-time',complete);
+}
 function renderTrends(){
   const chart=document.getElementById('trendChart');if(!chart)return;
   const data=dates().map(d=>({d,t:totals(withSupp(DB.days[d].items)),prog:DB.days[d].status!=='complete'}));
