@@ -169,10 +169,9 @@
   </div>
 
   <div class="card">
-    <h2>Trends</h2>
+    <h2>Daily history</h2>
     <div id="trendChart"></div>
-    <div id="statsBox" style="margin-top:10px"></div>
-    <div class="note">Bars stacked by macro calories (blue P / amber F / green C), scaled to the busiest day. * = in-progress day (under-counts); averages use complete days only.</div>
+    <div class="note">One bar per day, stacked by macro calories (blue P / amber F / green C), scaled to the busiest day. * = in-progress day (under-counts). Averages are up top.</div>
   </div>
 
   <div class="card">
@@ -272,7 +271,7 @@ function toggleClose(){const day=DB.days[DB.current];if(!day)return;day.status=d
 const MEALS=['breakfast','lunch','dinner','snack','drink','supplement'];
 function cycleMeal(idx){const it=DB.days[DB.current].items[idx];if(!it)return;it.meal=MEALS[(MEALS.indexOf(it.meal)+1)%MEALS.length];render();toast(it.meal);}
 let macroMode='cal'; // 'cal' = ring by calorie share, 'g' = ring by grams
-function setMacro(m){macroMode=m;renderHero();}
+function setMacro(m){macroMode=m;render();}
 
 // ---- storage adapter: Claude account storage > browser localStorage > memory ----
 let STORE_MODE='memory';
@@ -488,10 +487,12 @@ function renderAvgStrip(){
   const c=new Date(localDate()+'T00:00:00');c.setDate(c.getDate()-6);
   const cutoff=c.getFullYear()+'-'+String(c.getMonth()+1).padStart(2,'0')+'-'+String(c.getDate()).padStart(2,'0');
   const last7=complete.filter(d=>d>=cutoff);
+  const useG=macroMode==='g';
   const cell=(label,ds)=>{
     if(!ds.length)return `<div class="avgcell"><span>${label}</span><b>—</b><small>no closed days</small></div>`;
-    const a=avgOver(ds);
-    return `<div class="avgcell"><span>${label} · n=${ds.length}</span><b>${r(a.kcal)}</b><small>kcal · ${r(a.protein_g)}P ${r(a.fat_g)}F ${r(a.carb_g)}C · ${r(a.fiber_g)} fib</small></div>`;
+    const a=avgOver(ds),sp=split(a);
+    const macro=useG?`${r(a.protein_g)}P ${r(a.fat_g)}F ${r(a.carb_g)}C g`:`${sp.p}/${sp.f}/${sp.c} %`;
+    return `<div class="avgcell"><span>${label} · n=${ds.length}</span><b>${r(a.kcal)}</b><small>kcal · ${macro} · ${r(a.fiber_g)} fib</small></div>`;
   };
   el.innerHTML=cell('7-day avg',last7)+cell('All-time',complete);
 }
@@ -507,27 +508,6 @@ function renderTrends(){
         <span class="p" style="width:${s.p}%"></span><span class="f" style="width:${s.f}%"></span><span class="c" style="width:${s.c}%"></span>
       </div></div><span class="tkcal">${r(x.t.kcal)}</span>`;
     chart.appendChild(row);});
-  const complete=dates().filter(d=>DB.days[d].status==='complete');
-  const c=new Date(localDate()+'T00:00:00');c.setDate(c.getDate()-6);
-  const cutoff=c.getFullYear()+'-'+String(c.getMonth()+1).padStart(2,'0')+'-'+String(c.getDate()).padStart(2,'0');
-  const last7=complete.filter(d=>d>=cutoff);
-  // average bars (same kcal scale as the daily bars, so they're directly comparable)
-  [['7-day',last7],['All-time',complete]].forEach(([label,ds])=>{
-    if(!ds.length)return;
-    const a=avgOver(ds),s=split(a);
-    const row=document.createElement('div');row.className='trow tavg';
-    row.innerHTML=`<span class="tdate">${label}</span>
-      <div class="tbarwrap"><div class="tbar" style="width:${Math.round(a.kcal/max*100)}%">
-        <span class="p" style="width:${s.p}%"></span><span class="f" style="width:${s.f}%"></span><span class="c" style="width:${s.c}%"></span>
-      </div></div><span class="tkcal">${r(a.kcal)}</span>`;
-    chart.appendChild(row);});
-  const box=document.getElementById('statsBox');box.innerHTML='';
-  [['7-day avg',last7],['All-time avg',complete]].forEach(([label,ds])=>{
-    const el=document.createElement('div');el.className='statline';
-    if(!ds.length){el.innerHTML=`<div class="lbl">${label} <small>(n=0)</small></div><div class="val none">no complete days yet</div>`;}
-    else{const a=avgOver(ds),s=split(a);
-      el.innerHTML=`<div class="lbl">${label} <small>(n=${ds.length})</small></div><div class="val">${r(a.kcal)} kcal · ${r(a.protein_g)}P ${r(a.fat_g)}F ${r(a.carb_g)}C · ${r(a.fiber_g)} fib · ${s.p}/${s.f}/${s.c}%</div>`;}
-    box.appendChild(el);});
 }
 function readNew(){return {name:v('nName'),meal:v('nMeal'),time:v('nTime')||nowTime(),kcal:N(v('nK')),protein_g:N(v('nP')),fat_g:N(v('nF')),carb_g:N(v('nC')),fiber_g:N(v('nFib')),confidence:v('nConf'),notes:v('nNote')};}
 function clearNew(){['nName','nK','nP','nF','nC','nFib','nNote'].forEach(id=>document.getElementById(id).value='');}
