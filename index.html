@@ -121,6 +121,8 @@
   #endDayBtn.closed{background:var(--panel2);color:var(--good);border:1px solid var(--good)}
   .mealchip{display:inline-block;width:auto;margin-top:6px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:11px;background:var(--chip);color:var(--accent);border:1px solid var(--line);text-transform:capitalize}
   .mealchip:active{opacity:.6}
+  .clrday{width:100%;margin-top:8px;background:none;border:none;color:#d96b6b;font-size:13px;font-weight:700}
+  .clrday:active{opacity:.5}
   .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--good);color:#ffffff;padding:11px 18px;border-radius:22px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
   .toast.show{opacity:1}
 </style>
@@ -181,6 +183,7 @@
     <div class="split" id="split"></div>
     <div class="note" id="splitLabel"></div>
     <button class="big" id="endDayBtn" onclick="toggleClose()"></button>
+    <button class="clrday" onclick="clearDay()">Clear this day</button>
   </div>
 
   <div class="card">
@@ -272,6 +275,8 @@ const MEALS=['breakfast','lunch','dinner','snack','drink','supplement'];
 function cycleMeal(idx){const it=DB.days[DB.current].items[idx];if(!it)return;it.meal=MEALS[(MEALS.indexOf(it.meal)+1)%MEALS.length];render();toast(it.meal);}
 let macroMode='cal'; // 'cal' = ring by calorie share, 'g' = ring by grams
 function setMacro(m){macroMode=m;render();}
+// Wipe the selected day's items (e.g. to re-import a clean full-day JSON via Ingest).
+function clearDay(){const d=DB.days[DB.current];if(!d)return;if(!confirm('Clear all items for '+DB.current+'? This cannot be undone.'))return;d.items=[];d.water_l=0;render();toast('Day cleared — paste a full-day JSON to refill');}
 
 // ---- storage adapter: Claude account storage > browser localStorage > memory ----
 let STORE_MODE='memory';
