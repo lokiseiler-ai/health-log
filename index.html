@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<title>Health Log</title>
+<title>Food Log</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Health Log">
+<meta name="apple-mobile-web-app-title" content="Food Log">
 <meta name="theme-color" content="#f4f6fa">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +24,7 @@
   .top h1{font-size:16px;margin:0;font-weight:600;flex:1}
   .wrap{max-width:560px;margin:0 auto;padding:14px}
   .card{background:linear-gradient(180deg,#ffffff,#fbfcfe);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 8px 24px rgba(35,50,75,.07)}
-  .heroflex{display:flex;flex-direction:column;align-items:center;gap:14px;padding:6px 0}
+  .heroflex{display:flex;align-items:center;justify-content:center;gap:16px;padding:6px 0}
   .bigringbox{position:relative;width:200px;text-align:center}
   .bigringbox svg{width:200px;height:200px;display:block;filter:drop-shadow(0 4px 14px rgba(63,191,174,.28))}
   .bigval{position:absolute;top:0;left:0;width:200px;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
@@ -47,16 +47,6 @@
   .ballsub{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.4}
   .wbtns{display:flex;gap:6px;justify-content:center;margin-top:7px}
   .wbtns button{font-size:13px;padding:7px 11px;border-radius:14px;font-weight:700;width:auto}
-  .fastbox{text-align:center;min-width:120px}
-  .fastbox .fbig{font-size:26px;font-weight:800;line-height:1.1}
-  .fastbox .fsub{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
-  .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:12px}
-  .calcell{text-align:center;padding:2px 0}
-  .calcell .chrs{font-size:9.5px;color:var(--muted);height:13px;font-weight:700}
-  .calcell .cring{width:32px;height:32px;border-radius:50%;border:3px solid rgba(35,50,75,.12);margin:2px auto 0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted)}
-  .calcell .cring.hit{border-color:var(--good);color:var(--txt);box-shadow:0 0 8px rgba(90,214,138,.35)}
-  .calcell .cring.miss{border-color:var(--warn)}
-  .caldow{font-size:9px;color:var(--muted);text-transform:uppercase;text-align:center;letter-spacing:.05em}
   .card h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 10px}
   label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}
   input,select,textarea,button{font-size:16px;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:11px;width:100%}
@@ -89,17 +79,14 @@
   .note{font-size:12px;color:var(--muted);margin-top:8px}
   details>summary{cursor:pointer;color:var(--accent);font-size:14px;padding:6px 0;list-style:none}
   details>summary::-webkit-details-marker{display:none}
-  .trow{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:12px}
-  .trow.prog{opacity:.45}
-  .tdate{width:40px;color:var(--muted);font-variant-numeric:tabular-nums}
-  .tbarwrap{flex:1;background:var(--panel2);border-radius:6px;overflow:hidden;height:16px}
-  .tbar{display:flex;height:100%;min-width:3px;border-radius:6px;overflow:hidden}
-  .tbar .p{background:#86a7e0}.tbar .f{background:#e3bb6e}.tbar .c{background:#74c697}
-  .tkcal{width:44px;text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
-  .trow.tavg{margin-top:6px;border-top:1px dashed var(--line);padding-top:8px}
-  .trow.tavg:first-of-type{}
-  .trow.tavg .tdate{width:54px;font-weight:800;color:var(--txt);font-size:10.5px}
-  .trow.tavg .tbar{opacity:.92}
+  .histwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+  .hist{display:flex;align-items:flex-end;gap:6px;min-width:max-content;padding:2px 2px 0}
+  .hcol{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:22px}
+  .hcol.prog{opacity:.45}
+  .hkcal{writing-mode:vertical-rl;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;margin-bottom:4px}
+  .hbar{width:16px;display:flex;flex-direction:column;border-radius:6px 6px 0 0;overflow:hidden;min-height:3px}
+  .hbar .p{background:#86a7e0}.hbar .f{background:#e3bb6e}.hbar .c{background:#74c697}
+  .hdate{writing-mode:vertical-rl;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:4px}
   .statline{padding:9px 0;border-top:1px solid var(--line)}
   .statline:first-child{border-top:none}
   .statline .lbl{font-size:13px;font-weight:700}
@@ -111,11 +98,11 @@
   .avgcell span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
   .avgcell b{font-size:17px;font-variant-numeric:tabular-nums}
   .avgcell small{display:block;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:1px}
-  .daysel{text-align:center;font-size:16px;font-weight:800;margin:0 0 6px}
+  .daynav{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 6px}
+  .dayarrow{width:40px;padding:6px 0;font-size:19px;font-weight:800;border-radius:12px;background:var(--panel2);color:var(--accent);line-height:1.2}
+  .dayarrow:disabled{opacity:.25}
+  .daysel{text-align:center;font-size:16px;font-weight:800;min-width:150px}
   .daysel small{display:inline-block;font-size:10px;font-weight:800;color:#fff;background:var(--accent);border-radius:10px;padding:1px 8px;margin-left:6px;text-transform:uppercase;letter-spacing:.08em;vertical-align:2px}
-  .calcell.has .cring{cursor:pointer}
-  .calcell.has .cring:active{transform:scale(.9)}
-  .calcell.sel .cring{border-color:var(--accent);background:var(--accent);color:#fff;box-shadow:0 0 10px rgba(63,191,174,.5)}
   #endDayBtn{width:100%;margin-top:12px;font-weight:800}
   #endDayBtn.open{background:var(--accent);color:#fff;border:none}
   #endDayBtn.closed{background:var(--panel2);color:var(--good);border:1px solid var(--good)}
@@ -123,13 +110,16 @@
   .mealchip:active{opacity:.6}
   .clrday{width:100%;margin-top:8px;background:none;border:none;color:#d96b6b;font-size:13px;font-weight:700}
   .clrday:active{opacity:.5}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 4px}
+  .presets button{flex:1 1 calc(50% - 4px);min-width:0;font-size:13px;font-weight:700;padding:10px 6px;border-radius:14px;background:var(--panel2);line-height:1.35}
+  .presets button small{display:block;font-size:11px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
   .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--good);color:#ffffff;padding:11px 18px;border-radius:22px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
   .toast.show{opacity:1}
 </style>
 </head>
 <body>
 <div class="top">
-  <h1>Health Log</h1>
+  <h1>Food Log</h1>
   <button class="copy" onclick="copyData()">⇪ Copy data</button>
 </div>
 <div style="text-align:center;font-size:11px;padding:4px 0;background:var(--panel);border-bottom:1px solid var(--line)" id="storeBadge"></div>
@@ -137,7 +127,11 @@
 <div class="wrap">
   <div class="card">
     <div class="avgstrip" id="avgStrip"></div>
-    <div class="daysel" id="ringDate"></div>
+    <div class="daynav">
+      <button class="dayarrow" id="dayPrev" onclick="stepDay(-1)">‹</button>
+      <div class="daysel" id="ringDate"></div>
+      <button class="dayarrow" id="dayNext" onclick="stepDay(1)">›</button>
+    </div>
     <div class="heroflex">
       <div class="bigringbox">
         <div id="bigRing"></div>
@@ -153,27 +147,14 @@
           <div class="ballwrap fib"><div id="fibBall"></div><div class="ballval"><b id="fibVal"></b><span>g fiber</span></div></div>
           <div class="ballsub" id="fibSub"></div>
         </div>
-        <div class="fastbox">
-          <div class="ringlabel" style="margin:0 0 6px">Fasting</div>
-          <div id="fastWin"></div>
-        </div>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <details open>
-      <summary><b>Calendar</b> · <span id="fastMTD" class="note" style="margin:0"></span></summary>
-      <div style="margin-top:12px"><select id="calMonth" style="width:auto" onchange="renderCal()"></select></div>
-      <div class="calgrid" id="calGrid"></div>
-      <div class="note">Tap any logged day to load it into the panel above. Green ring = fast ≥ 14 h (rounded hours shown); fasting = last meal of the evening → first meal next day.</div>
-    </details>
-  </div>
-
-  <div class="card">
     <h2>Daily history</h2>
-    <div id="trendChart"></div>
-    <div class="note">One bar per day, stacked by macro calories (blue P / amber F / green C), scaled to the busiest day. * = in-progress day (under-counts). Averages are up top.</div>
+    <div class="histwrap" id="trendChart"></div>
+    <div class="note">One column per day, stacked by macro calories (blue P / amber F / green C), scaled to the busiest day. * = in-progress day (under-counts). Scroll sideways for history; averages are up top.</div>
   </div>
 
   <div class="card">
@@ -195,10 +176,9 @@
   </div>
 
   <div class="card">
-    <h2>Quick add — recurring meals</h2>
-    <select id="known"></select>
-    <button class="primary big" onclick="addKnown()">Add selected meal</button>
-    <div class="note">Recurring meals reuse pinned values — no re-estimating.</div>
+    <h2>Quick add</h2>
+    <div class="presets" id="presetRow"></div>
+    <div class="note">One tap logs it with the current time. Pinned values — no re-estimating.</div>
   </div>
 
   <div class="card">
@@ -227,7 +207,6 @@
       </div>
       <label>Notes</label><input id="nNote" placeholder="optional">
       <button class="primary big" onclick="addNew()">Add to day</button>
-      <button class="big" onclick="saveKnown()">Save as recurring meal</button>
     </details>
   </div>
 
@@ -249,7 +228,34 @@
 
 <script>
 const KEY='uha-log-v1';
-const SUPP={name:'Daily supplements (Viome + biotics + psyllium + creatine)',meal:'supplement',kcal:5,protein_g:0,fat_g:0,carb_g:0,fiber_g:4,soluble_fiber_g:4,confidence:'measured',notes:'auto-applied daily; +~4g soluble fiber',_auto:true};
+// One-tap presets: Loki's standing anchors (calibrated/pinned values — no re-estimating).
+const PRESETS=[
+  {label:'Protein latte',name:'Protein latte',meal:'drink',kcal:65,protein_g:6.8,fat_g:3.5,carb_g:1.6,fiber_g:0.2,soluble_fiber_g:0,confidence:'measured',notes:'125ml calibrated unit'},
+  {label:'Decaf protein latte',name:'Protein latte (decaf)',meal:'drink',kcal:65,protein_g:6.8,fat_g:3.5,carb_g:1.6,fiber_g:0.2,soluble_fiber_g:0,confidence:'measured',notes:'125ml calibrated unit; decaf'},
+  {label:'Curry chicken 180g',name:'Curry chicken thighs',meal:'lunch',kcal:378,protein_g:46.8,fat_g:19.8,carb_g:0,fiber_g:0,soluble_fiber_g:0,confidence:'weighed',notes:'180g; curry thigh anchor 210/100g'},
+  {label:'Water 1L',name:'Water, 1L',meal:'drink',kcal:0,protein_g:0,fat_g:0,carb_g:0,fiber_g:0,soluble_fiber_g:0,water_l:1,confidence:'measured',notes:''}
+];
+function renderPresets(){
+  const el=document.getElementById('presetRow');if(!el||el.childElementCount)return;
+  PRESETS.forEach((p,i)=>{const b=document.createElement('button');
+    b.innerHTML=`${esc(p.label)}<small>${r(p.kcal)} kcal</small>`;
+    b.onclick=()=>addPreset(i);el.appendChild(b);});
+}
+function addPreset(i){
+  const p=PRESETS[i];if(!p)return;
+  const{label,...it}=p;
+  const day=DB.days[DB.current];
+  day.items.push({...it,time:nowTime()});
+  // water presets also feed the day's running water total (item keeps the timestamp)
+  if(it.water_l)day.water_l=Math.round(((day.water_l||0)+it.water_l)*100)/100;
+  render();toast(label+' added');
+}
+function stepDay(dir){
+  const ds=dates(),i=ds.indexOf(DB.current),j=i+dir;
+  if(j<0||j>=ds.length)return;
+  DB.current=ds[j];render();
+}
+const SUPP={name:'Daily supplements (Viome + biotics + psyllium/inulin + creatine)',meal:'supplement',kcal:5,protein_g:0,fat_g:0,carb_g:0,fiber_g:4,soluble_fiber_g:4,confidence:'measured',notes:'auto-applied daily; +~4g soluble fiber (~5g psyllium+inulin mix, ~1g inulin)',_auto:true};
 
 // Seed is intentionally history-free: this file may be pasted into a chat or
 // published, and day logs are personal data. Real history lives in your own
@@ -321,6 +327,7 @@ let DB=seed();
     if(loaded.current)DB.current=loaded.current;
   }
   const d=localDate();if(!DB.days[d])DB.days[d]={status:'in_progress',items:[]};DB.current=d;normalizeStatuses();
+  renderPresets();
   render();
 })();
 const N=v=>Number(v)||0, F=['kcal','protein_g','fat_g','carb_g','fiber_g'];
@@ -373,12 +380,13 @@ function render(){
   const s=split(t);
   document.getElementById('split').innerHTML=`<span class="p" style="width:${s.p}%"></span><span class="f" style="width:${s.f}%"></span><span class="c" style="width:${s.c}%"></span>`;
   document.getElementById('splitLabel').textContent=`Protein ${s.p}% · Fat ${s.f}% · Carb ${s.c}% (by calories)`;
-  const ks=document.getElementById('known');ks.innerHTML='';
-  DB.known.forEach((k,idx)=>{const o=document.createElement('option');o.value=idx;o.textContent=`${k.name} — ${r(k.kcal)} kcal`;ks.appendChild(o);});
+  const ds=dates(),di=ds.indexOf(DB.current);
+  const pv=document.getElementById('dayPrev'),nx=document.getElementById('dayNext');
+  if(pv)pv.disabled=di<=0;
+  if(nx)nx.disabled=di<0||di>=ds.length-1;
   renderHero();
   renderAvgStrip();
   renderTrends();
-  renderCal();
   save();
 }
 
@@ -427,63 +435,9 @@ function renderHero(){
   document.getElementById('fibSub').innerHTML=`<span style="color:var(--accent)">soluble ${r(sol)}g</span> · <span style="color:var(--good)">insoluble ${r(oth)}g</span>`;
   const w=(day&&day.water_l)||0;
   document.getElementById('watVal').textContent=w.toFixed(2).replace(/\.?0+$/,'')||'0';
-  const fi=fastInfo(sel);
-  const fw=document.getElementById('fastWin');
-  if(!fi){fw.innerHTML='<div class="fsub">needs meal times —<br>starts collecting today</div>';}
-  else if(fi.end){
-    fw.innerHTML=`<div class="fbig">${fi.hours.toFixed(1)}<span style="font-size:14px;color:var(--muted)"> h</span></div>
-      <div class="fsub">started <b>${fi.start}</b> yest.<br>ended <b>${fi.end}</b></div>`;
-  }else{
-    const nm=new Date(),cur=((nm.getHours()*60+nm.getMinutes())+1440-toMin(fi.start))/60;
-    fw.innerHTML=`<div class="fbig">${cur.toFixed(1)}<span style="font-size:14px;color:var(--muted)"> h</span></div>
-      <div class="fsub">since <b>${fi.start}</b> yest.<br>still fasting</div>`;
-  }
 }
 
 function nowTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
-const toMin=t=>{const a=t.split(':');return Number(a[0])*60+Number(a[1]);};
-function prevDateStr(d){const t=new Date(d+'T00:00:00');t.setDate(t.getDate()-1);return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');}
-function mealTimes(d){const day=DB.days[d];if(!day)return[];
-  return day.items.filter(i=>!i._auto&&i.time&&N(i.kcal)>0&&i.meal!=='supplement').map(i=>i.time).sort();}
-function fastInfo(d){
-  const prev=mealTimes(prevDateStr(d));
-  if(!prev.length)return null;
-  const start=prev[prev.length-1];
-  const cur=mealTimes(d);
-  if(!cur.length)return{start,end:null,hours:null};
-  const end=cur[0];
-  return{start,end,hours:(toMin(end)+1440-toMin(start))/60};
-}
-function renderCal(){
-  const sel=document.getElementById('calMonth');
-  const months=[...new Set(dates().map(d=>d.slice(0,7)).concat(localDate().slice(0,7)))].sort();
-  const keep=sel.value;
-  sel.innerHTML='';months.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o);});
-  sel.value=months.includes(keep)?keep:localDate().slice(0,7);
-  const m=sel.value;
-  const grid=document.getElementById('calGrid');grid.innerHTML='';
-  ['Mo','Tu','We','Th','Fr','Sa','Su'].forEach(d=>{const h=document.createElement('div');h.className='caldow';h.textContent=d;grid.appendChild(h);});
-  const first=new Date(m+'-01T00:00:00');
-  const blanks=(first.getDay()+6)%7;
-  const dim=new Date(first.getFullYear(),first.getMonth()+1,0).getDate();
-  for(let i=0;i<blanks;i++){grid.appendChild(document.createElement('div'));}
-  const durs=[];
-  for(let dd=1;dd<=dim;dd++){
-    const ds=m+'-'+String(dd).padStart(2,'0');
-    const fi=ds<=localDate()?fastInfo(ds):null;
-    const h=fi&&fi.hours;
-    if(h)durs.push(h);
-    const has=!!DB.days[ds];
-    const cell=document.createElement('div');cell.className='calcell'+(has?' has':'')+(ds===DB.current?' sel':'');
-    cell.innerHTML=`<div class="chrs">${h?Math.round(h)+'h':''}</div>
-      <div class="cring ${h?(h>=14?'hit':'miss'):''}">${dd}</div>`;
-    if(has)cell.onclick=()=>{DB.current=ds;render();};
-    grid.appendChild(cell);
-  }
-  document.getElementById('fastMTD').textContent=durs.length
-    ?`avg ${(durs.reduce((a,b)=>a+b,0)/durs.length).toFixed(1)} h over ${durs.length} day${durs.length>1?'s':''}`
-    :'no data yet';
-}
 
 function avgOver(ds){const t={kcal:0,protein_g:0,fat_g:0,carb_g:0,fiber_g:0};ds.forEach(d=>{const tt=totals(withSupp(DB.days[d].items));F.forEach(f=>t[f]+=tt[f]);});const n=ds.length||1;F.forEach(f=>t[f]/=n);return t;}
 function renderAvgStrip(){
@@ -504,21 +458,24 @@ function renderAvgStrip(){
 function renderTrends(){
   const chart=document.getElementById('trendChart');if(!chart)return;
   const data=dates().map(d=>({d,t:totals(withSupp(DB.days[d].items)),prog:DB.days[d].status!=='complete'}));
-  const max=Math.max(...data.map(x=>x.t.kcal),1);
-  chart.innerHTML='';
+  const max=Math.max(...data.map(x=>x.t.kcal),1),H=150;
+  const hist=document.createElement('div');hist.className='hist';
   data.forEach(x=>{const s=split(x.t);
-    const row=document.createElement('div');row.className='trow'+(x.prog?' prog':'');
-    row.innerHTML=`<span class="tdate">${x.d.slice(5)}${x.prog?'*':''}</span>
-      <div class="tbarwrap"><div class="tbar" style="width:${Math.round(x.t.kcal/max*100)}%">
-        <span class="p" style="width:${s.p}%"></span><span class="f" style="width:${s.f}%"></span><span class="c" style="width:${s.c}%"></span>
-      </div></div><span class="tkcal">${r(x.t.kcal)}</span>`;
-    chart.appendChild(row);});
+    const h=Math.max(Math.round(x.t.kcal/max*H),3);
+    const col=document.createElement('div');col.className='hcol'+(x.prog?' prog':'');
+    // stack bottom-up P/F/C: column is a normal flex column, so C renders on top
+    col.innerHTML=`<span class="hkcal">${r(x.t.kcal)}</span>
+      <div class="hbar" style="height:${h}px">
+        <span class="c" style="height:${s.c}%"></span><span class="f" style="height:${s.f}%"></span><span class="p" style="height:${s.p}%"></span>
+      </div>
+      <span class="hdate">${x.d.slice(5)}${x.prog?'*':''}</span>`;
+    hist.appendChild(col);});
+  chart.innerHTML='';chart.appendChild(hist);
+  chart.scrollLeft=chart.scrollWidth; // land on the latest day
 }
 function readNew(){return {name:v('nName'),meal:v('nMeal'),time:v('nTime')||nowTime(),kcal:N(v('nK')),protein_g:N(v('nP')),fat_g:N(v('nF')),carb_g:N(v('nC')),fiber_g:N(v('nFib')),confidence:v('nConf'),notes:v('nNote')};}
 function clearNew(){['nName','nK','nP','nF','nC','nFib','nNote'].forEach(id=>document.getElementById(id).value='');}
 function addNew(){const it=readNew();if(!it.name)return toast('Name required');DB.days[DB.current].items.push(it);clearNew();render();toast('Added');}
-function saveKnown(){const it=readNew();if(!it.name)return toast('Name required');DB.known.push(it);render();toast('Saved recurring meal');}
-function addKnown(){const i=document.getElementById('known').value;if(i==='')return;DB.days[DB.current].items.push({...DB.known[i]});render();toast('Added');}
 function ingest(){let raw=v('paste');if(!raw)return;try{let o=JSON.parse(cleanJSON(raw));
   if(o&&o.days){const added=[];Object.keys(o.days).forEach(d=>{const loc=DB.days[d];if(!loc||!loc.items.length){DB.days[d]=o.days[d];added.push(d);}});if(Array.isArray(o.known)){const have=new Set(DB.known.map(k=>k.name));o.known.forEach(k=>{if(k.name&&!have.has(k.name))DB.known.push(k);});}document.getElementById('paste').value='';render();toast('Imported: '+(added.join(', ')||'no new days'));return;}
   const defDay=o.date||DB.current;let a=Array.isArray(o)?o:(o.items||[o]),n=0;a.forEach(x=>{if(!x.name)return;const d=x.date||defDay;if(!DB.days[d])DB.days[d]={status:'in_progress',items:[]};DB.days[d].items.push({name:x.name,meal:x.meal||'snack',time:x.time||nowTime(),kcal:N(x.kcal),protein_g:N(x.protein_g),fat_g:N(x.fat_g),carb_g:N(x.carb_g),fiber_g:N(x.fiber_g),soluble_fiber_g:N(x.soluble_fiber_g),confidence:x.confidence||'eyeballed',notes:x.notes||''});n++;});document.getElementById('paste').value='';render();toast(n+' item(s) added');}catch(e){toast('Bad JSON: '+e.message);}}
