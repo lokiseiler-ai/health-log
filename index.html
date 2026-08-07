@@ -121,16 +121,22 @@
   .gverd.good{background:rgba(84,185,126,.16);color:var(--good)}
   .gverd.mix{background:rgba(217,161,62,.18);color:var(--warn)}
   .gverd.bad{background:rgba(217,107,107,.16);color:var(--bad)}
-  .glever{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-top:1px solid rgba(35,50,75,.06);gap:10px}
-  .glbl{font-size:13px;font-weight:600;white-space:nowrap}
-  .glbl .gabs{font-size:10px;font-weight:800;padding:1px 7px;border-radius:8px;margin-left:6px;letter-spacing:.02em}
+  /* Phone overflow fix: the row is flex, and a flex child will NOT shrink below its
+     content width without min-width:0. Both children carried white-space:nowrap, and
+     .gser (the 3 daily values) sits inside .glbl and inherited it — a long unbreakable
+     string that bled past the card edge on a narrow screen. Label now wraps and shrinks;
+     the values keep their own line and drop below when there is no room. */
+  .glever{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;padding:7px 0;border-top:1px solid rgba(35,50,75,.06);gap:4px 10px;overflow-wrap:anywhere}
+  .glbl{font-size:13px;font-weight:600;min-width:0;flex:1 1 auto}
+  /* the badge stays intact as a unit even though its container may now wrap */
+  .glbl .gabs{display:inline-block;font-size:10px;font-weight:800;padding:1px 7px;border-radius:8px;margin-left:6px;letter-spacing:.02em;white-space:nowrap}
   .gabs.ok{background:rgba(84,185,126,.15);color:var(--good)}
   .gabs.hi{background:rgba(217,107,107,.15);color:var(--bad)}
   .gabs.lo{background:rgba(217,161,62,.16);color:var(--warn)}
-  .gser{font-size:11px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:2px;letter-spacing:.01em}
+  .gser{font-size:11px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:2px;letter-spacing:.01em;white-space:normal}
   .gser .gsu{font-weight:600;opacity:.75;margin-left:5px}
   .glever.dir-gd .gser{color:var(--good)}.glever.dir-bd .gser{color:var(--bad)}
-  .gvals{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+  .gvals{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right;min-width:0;flex:0 0 auto;margin-left:auto}
   .gvals b{color:var(--txt);font-weight:700}
   .gvals b.gd{color:var(--good)}.gvals b.bd{color:var(--bad)}
   /* direction is legible from the row, not just the digits: a coloured rail + tint */
