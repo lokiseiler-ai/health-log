@@ -40,13 +40,13 @@
   .ballwrap{position:relative;width:84px;height:84px;margin:0 auto}
   .ballwrap svg{width:84px;height:84px;display:block}
   .ballwrap.fib svg{filter:drop-shadow(0 3px 9px rgba(84,185,126,.28))}
-  .ballwrap.wat svg{filter:drop-shadow(0 3px 9px rgba(110,180,235,.30))}
   .ballval{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
   .ballval b{font-size:17px;font-weight:800}
   .ballval span{font-size:9px;color:var(--muted)}
   .ballsub{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.4}
-  .wbtns{display:flex;gap:6px;justify-content:center;margin-top:7px}
-  .wbtns button{font-size:13px;padding:7px 11px;border-radius:14px;font-weight:700;width:auto}
+  /* the sitting's time is stated ONCE, on the group header, and the items sit under it */
+  .gtime{color:var(--accent);font-weight:800;font-size:12px;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
+  .gcount{color:var(--muted);font-weight:600;font-size:10px;letter-spacing:.06em}
   .card h2{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 10px}
   label{display:block;font-size:12px;color:var(--muted);margin:8px 0 3px}
   input,select,textarea,button{font-size:16px;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:11px;width:100%}
@@ -113,6 +113,31 @@
   .presets{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 4px}
   .presets button{flex:1 1 calc(50% - 4px);min-width:0;font-size:13px;font-weight:700;padding:10px 6px;border-radius:14px;background:var(--panel2);line-height:1.35}
   .presets button small{display:block;font-size:11px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+  .goalhint{font-size:11.5px;color:var(--muted);margin:2px 0 10px;line-height:1.4}
+  .gsec{margin-top:12px}.gsec:first-of-type{margin-top:2px}
+  .ghead{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:800;margin-bottom:3px}
+  .ghead .arrow{color:var(--muted);font-weight:800}
+  .gverd{font-size:10px;font-weight:800;padding:2px 9px;border-radius:10px;text-transform:uppercase;letter-spacing:.05em;margin-left:auto}
+  .gverd.good{background:rgba(84,185,126,.16);color:var(--good)}
+  .gverd.mix{background:rgba(217,161,62,.18);color:var(--warn)}
+  .gverd.bad{background:rgba(217,107,107,.16);color:var(--bad)}
+  .glever{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-top:1px solid rgba(35,50,75,.06);gap:10px}
+  .glbl{font-size:13px;font-weight:600;white-space:nowrap}
+  .glbl .gabs{font-size:10px;font-weight:800;padding:1px 7px;border-radius:8px;margin-left:6px;letter-spacing:.02em}
+  .gabs.ok{background:rgba(84,185,126,.15);color:var(--good)}
+  .gabs.hi{background:rgba(217,107,107,.15);color:var(--bad)}
+  .gabs.lo{background:rgba(217,161,62,.16);color:var(--warn)}
+  .gser{font-size:11px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:2px;letter-spacing:.01em}
+  .gser .gsu{font-weight:600;opacity:.75;margin-left:5px}
+  .glever.dir-gd .gser{color:var(--good)}.glever.dir-bd .gser{color:var(--bad)}
+  .gvals{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+  .gvals b{color:var(--txt);font-weight:700}
+  .gvals b.gd{color:var(--good)}.gvals b.bd{color:var(--bad)}
+  /* direction is legible from the row, not just the digits: a coloured rail + tint */
+  .glever.dir-gd{border-left:3px solid var(--good);background:rgba(84,185,126,.07);padding-left:9px;border-radius:0 8px 8px 0}
+  .glever.dir-bd{border-left:3px solid var(--bad);background:rgba(217,107,107,.07);padding-left:9px;border-radius:0 8px 8px 0}
+  .glever.dir-gd .glbl{color:var(--good);font-weight:700}
+  .glever.dir-bd .glbl{color:var(--bad);font-weight:700}
   .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--good);color:#ffffff;padding:11px 18px;border-radius:22px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
   .toast.show{opacity:1}
 </style>
@@ -120,6 +145,7 @@
 <body>
 <div class="top">
   <h1>Food Log</h1>
+  <button class="copy" onclick="saveFile()">⇩ Save file</button>
   <button class="copy" onclick="copyData()">⇪ Copy data</button>
 </div>
 <div style="text-align:center;font-size:11px;padding:4px 0;background:var(--panel);border-bottom:1px solid var(--line)" id="storeBadge"></div>
@@ -150,6 +176,8 @@
       </div>
     </div>
   </div>
+
+  <div class="card" id="goalCard"></div>
 
   <div class="card">
     <h2>Daily history</h2>
@@ -183,15 +211,7 @@
 
   <div class="card">
     <details>
-      <summary>+ Add manually · water</summary>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:14px">
-        <span>Water today: <b id="watVal"></b> L</span>
-        <span class="wbtns" style="margin:0">
-          <button onclick="addWater(-0.25)">−</button>
-          <button class="primary" onclick="addWater(0.25)">+0.25</button>
-          <button class="primary" onclick="addWater(0.5)">+0.5</button>
-        </span>
-      </div>
+      <summary>+ Add manually</summary>
       <label>Name</label><input id="nName" placeholder="e.g. Greek yogurt 150g">
       <div class="row">
         <div><label>Meal</label><select id="nMeal"><option>breakfast</option><option>lunch</option><option>dinner</option><option selected>snack</option><option>drink</option><option>supplement</option></select></div>
@@ -229,11 +249,43 @@
 <script>
 const KEY='uha-log-v1';
 // One-tap presets: Loki's standing anchors (calibrated/pinned values — no re-estimating).
+// Protein nut-milk latte, defined PER 100 ML so any pour scales and a change of cup size
+// is one number (LATTE_ML) rather than a re-derivation.
+//
+//   batch: 100 g collagen        350 kcal / 90.0 P            (label-verified panel)
+//        + 160 g nuts 60:40 cashew:almond, transferred fraction
+//                                 361 kcal / 12.9 P / 29.6 F / 13.4 C / 1.6 fib
+//        = 711 kcal / 102.9 P / 29.6 F / 13.4 C / 1.6 fib   over a ~965 g yield
+//        => 0.7368 kcal per gram
+//   Espresso adds nothing measurable, so the latte figure is just the milk volume.
+//
+// Atwater on the per-100ml line reads 75.8 against 73.7 stated (+2.1). That is collagen's
+// label rounding — 90 g protein x 4 = 360 kcal against a 350 kcal panel — carried through
+// the batch, not an error in the mix.
+//
+// INFERRED, not weighed: the 965 g yield and the ~40% nut transfer. Both rest on
+// arithmetic; a single scale reading of the finished batch would convert them to measured.
+const LATTE_PER_100ML={kcal:73.7,protein_g:10.66,fat_g:3.07,carb_g:1.39,fiber_g:0.17,sodium_mg:36};
+const LATTE_ML=125;                       // standard pour — change this one number
+function lattePreset(decaf){
+  const f=LATTE_ML/100, r1=v=>Math.round(v*10)/10;
+  return {label:decaf?'Decaf protein latte':'Protein latte',
+          name:decaf?'Protein latte (decaf)':'Protein latte',
+          meal:'drink',
+          kcal:Math.round(LATTE_PER_100ML.kcal*f),
+          protein_g:r1(LATTE_PER_100ML.protein_g*f),
+          fat_g:r1(LATTE_PER_100ML.fat_g*f),
+          carb_g:r1(LATTE_PER_100ML.carb_g*f),
+          fiber_g:r1(LATTE_PER_100ML.fiber_g*f),
+          soluble_fiber_g:0,
+          confidence:'measured',
+          notes:`${LATTE_ML}ml @ ${LATTE_PER_100ML.kcal} kcal/100ml (collagen+nut batch, 0.7368 kcal/g)`
+                +(decaf?'; decaf':'')};
+}
+
 const PRESETS=[
-  {label:'Protein latte',name:'Protein latte',meal:'drink',kcal:65,protein_g:6.8,fat_g:3.5,carb_g:1.6,fiber_g:0.2,soluble_fiber_g:0,confidence:'measured',notes:'125ml calibrated unit'},
-  {label:'Decaf protein latte',name:'Protein latte (decaf)',meal:'drink',kcal:65,protein_g:6.8,fat_g:3.5,carb_g:1.6,fiber_g:0.2,soluble_fiber_g:0,confidence:'measured',notes:'125ml calibrated unit; decaf'},
-  {label:'Curry chicken 180g',name:'Curry chicken thighs',meal:'lunch',kcal:378,protein_g:46.8,fat_g:19.8,carb_g:0,fiber_g:0,soluble_fiber_g:0,confidence:'weighed',notes:'180g; curry thigh anchor 210/100g'},
-  {label:'Water 1L',name:'Water, 1L',meal:'drink',kcal:0,protein_g:0,fat_g:0,carb_g:0,fiber_g:0,soluble_fiber_g:0,water_l:1,confidence:'measured',notes:''}
+  lattePreset(false),
+  lattePreset(true)
 ];
 function renderPresets(){
   const el=document.getElementById('presetRow');if(!el||el.childElementCount)return;
@@ -246,8 +298,6 @@ function addPreset(i){
   const{label,...it}=p;
   const day=DB.days[DB.current];
   day.items.push({...it,time:nowTime()});
-  // water presets also feed the day's running water total (item keeps the timestamp)
-  if(it.water_l)day.water_l=Math.round(((day.water_l||0)+it.water_l)*100)/100;
   render();toast(label+' added');
 }
 function stepDay(dir){
@@ -282,7 +332,7 @@ function cycleMeal(idx){const it=DB.days[DB.current].items[idx];if(!it)return;it
 let macroMode='cal'; // 'cal' = ring by calorie share, 'g' = ring by grams
 function setMacro(m){macroMode=m;render();}
 // Wipe the selected day's items (e.g. to re-import a clean full-day JSON via Ingest).
-function clearDay(){const d=DB.days[DB.current];if(!d)return;if(!confirm('Clear all items for '+DB.current+'? This cannot be undone.'))return;d.items=[];d.water_l=0;render();toast('Day cleared — paste a full-day JSON to refill');}
+function clearDay(){const d=DB.days[DB.current];if(!d)return;if(!confirm('Clear all items for '+DB.current+'? This cannot be undone.'))return;d.items=[];render();toast('Day cleared — paste a full-day JSON to refill');}
 
 // ---- storage adapter: Claude account storage > browser localStorage > memory ----
 let STORE_MODE='memory';
@@ -345,6 +395,27 @@ const cleanJSON=s=>String(s).replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g,'
 const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const fmtDate=ds=>{const x=new Date(ds+'T00:00:00');return DOW[x.getDay()]+' '+MON[x.getMonth()]+' '+x.getDate();};
 
+// ---- time helpers: the day is grouped and ordered by WHEN it was eaten ----
+// Two formats coexist in the log: bare "HH:MM" (pre 2026-07-28) and full ISO with a real
+// offset. Both reduce to a 24h "HH:MM" sort key; anything unparseable groups last rather
+// than being dropped or silently sorted to midnight.
+const NO_TIME='~';
+function tKey(t){
+  if(!t)return NO_TIME;
+  t=String(t).trim();
+  let m=t.match(/^(\d{2}):(\d{2})/);                       // bare HH:MM
+  if(m)return m[1]+':'+m[2];
+  m=t.match(/T(\d{2}):(\d{2})/);                           // ISO — take the LOCAL digits
+  if(m)return m[1]+':'+m[2];
+  return NO_TIME;
+}
+function tLabel(k){                                        // "10:35" -> "10:35am"
+  if(k===NO_TIME)return '';
+  const[h,mi]=k.split(':').map(Number);
+  const ap=h<12?'am':'pm', h12=h%12===0?12:h%12;
+  return h12+':'+String(mi).padStart(2,'0')+ap;
+}
+
 function render(){
   normalizeStatuses();
   if(!DB.days[DB.current])DB.current=dates().slice(-1)[0];
@@ -352,19 +423,29 @@ function render(){
   const eb=document.getElementById('endDayBtn'),done=DB.days[DB.current].status==='complete';
   eb.textContent=done?'✓ Day closed — tap to reopen':'End & process this day';
   eb.className='big '+(done?'closed':'open');
+  // Grouped by WHEN IT WAS EATEN, not by meal category. Items from one sitting share a
+  // timestamp, so the time itself is the grouping key and the day reads chronologically.
   const items=withSupp(DB.days[DB.current].items),list=document.getElementById('list');list.innerHTML='';
-  const ORDER=['breakfast','lunch','dinner','snack','drink','supplement'];
-  const groups={};
-  items.forEach((i,idx)=>{const m=ORDER.includes(i.meal)?i.meal:'other';(groups[m]=groups[m]||[]).push({i,idx});});
-  ORDER.concat('other').forEach(m=>{
-    if(!groups[m])return;
-    const gt=totals(groups[m].map(x=>x.i));
+  const groups={},order=[];
+  items.forEach((i,idx)=>{
+    const k=tKey(i.time);
+    if(!groups[k]){groups[k]=[];order.push(k);}
+    groups[k].push({i,idx});
+  });
+  // chronological; untimed items last
+  order.sort((a,b)=>(a===NO_TIME)-(b===NO_TIME)||a.localeCompare(b));
+  order.forEach(k=>{
+    const gt=totals(groups[k].map(x=>x.i));
     const g=document.createElement('div');g.className='mealgrp';
-    g.innerHTML=`<div class="mealhead"><span>${m}</span><span>${r(gt.kcal)} kcal</span></div>`;
-    groups[m].forEach(({i,idx})=>{
+    const nItems=groups[k].length;
+    g.innerHTML=`<div class="mealhead"><span class="gtime">${k===NO_TIME?'no time logged':tLabel(k)}`
+      +`${nItems>1?` <span class="gcount">${nItems} items</span>`:''}</span>`
+      +`<span>${r(gt.kcal)} kcal</span></div>`;
+    groups[k].forEach(({i,idx})=>{
       const d=document.createElement('div');d.className='mitem';
+      // no per-item time — the group header above already states it once for the sitting
       d.innerHTML=`<div class="mmain"><div class="mname">${esc(i.name)}</div>
-        <div class="mmeta">${i.time?i.time+' · ':''}<span class="dot c-${i.confidence}"></span>${i.confidence} &nbsp;·&nbsp; P ${r(i.protein_g)} · F ${r(i.fat_g)} · C ${r(i.carb_g)} · Fib ${r(i.fiber_g)}</div></div>
+        <div class="mmeta"><span class="dot c-${i.confidence}"></span>${i.confidence} &nbsp;·&nbsp; P ${r(i.protein_g)} · F ${r(i.fat_g)} · C ${r(i.carb_g)} · Fib ${r(i.fiber_g)}</div></div>
         <div class="mkcal">${r(i.kcal)}<small> kcal</small></div>`;
       if(!i._auto){
         const mc=document.createElement('button');mc.className='mealchip';mc.textContent=i.meal;mc.title='tap to change meal';mc.onclick=()=>cycleMeal(idx);
@@ -387,7 +468,126 @@ function render(){
   renderHero();
   renderAvgStrip();
   renderTrends();
+  renderGoals();
   save();
+}
+
+// ============ GOAL TRACKING: move LDL & urate the right way ============
+// The report sets two goals: lower LDL and lower uric acid. The logger stores macros
+// but not the sub-nutrients those markers respond to, so we estimate saturated fat,
+// fructose and purine load per item from its name + macros (tuned to Loki's foods),
+// then compare recent intake (3d, 7d) to the 28-day modal (median = typical day) and
+// to the absolute levels that actually move the markers.
+function _kw(n,a){n=(n||'').toLowerCase();return a.some(k=>n.includes(k));}
+function satFrac(n){
+  if(_kw(n,['coconut']))return .85;
+  if(_kw(n,['ghee','butter']))return .63;
+  if(_kw(n,['cheese','feta','brie','cheddar','string chees','parmesan','blue chees','tirokafteri','tzatziki']))return .6;
+  if(_kw(n,['lamb','beef','steak','ribeye','short rib','cevapi','cevap','tartare','elk','duck','rabbit','veal','haché','hache','sliders']))return .42;
+  if(_kw(n,['bacon']))return .38;
+  if(_kw(n,['egg']))return .32;
+  if(_kw(n,['chicken','thigh','drumstick','turkey','rotisserie','jerk','wings']))return .29;
+  if(_kw(n,['peanut butter','peanut']))return .2;
+  if(_kw(n,['salmon','trout','tuna','fish','branzino','seabass','sea bass','octopus','oyster','prawn','shrimp','sardine','mackerel','bluefin','ceviche','tonnato','gazpacho','lavr','oktap']))return .22;
+  if(_kw(n,['avocado','olive oil','evoo','dressing','salad','pine nut','nuts','almond','tofu','lentil','hummus','taramosalata','dip','pesto','veggie ball','fava']))return .14;
+  if(_kw(n,['latte','nut milk','nut latte']))return .12;
+  return .25;
+}
+function fructoseFrac(n){
+  if(_kw(n,['apple','pear','grape','honey','fig ','date','mango']))return .55;
+  if(_kw(n,['peach','nectarine','plum','apricot','banana','melon','watermelon']))return .45;
+  if(_kw(n,['cherry','cherries','blueberr','strawberr','blackberr','raspberr','berr']))return .42;
+  if(_kw(n,['lettuce','radish','salad','greens','arugula','cucumber','onion','garlic','asparagus','cauliflower','tomato','veg']))return .15;
+  if(_kw(n,['potato','lentil','tofu','rice','oat','chickpea','hummus','stew','fava','edamame','veggie ball','egg']))return .05;
+  return .1;
+}
+function solubleFrac(n){return _kw(n,['psyllium','inulin','oat','flax','chia','avocado','lentil','chickpea','bean','pear','apple','citrus','carrot','stew'])?.4:.3;}
+function purineRate(n){ // relative mg per g protein
+  if(_kw(n,['anchov','sardine','mussel','scallop','organ','liver','herring']))return 8;
+  if(_kw(n,['oyster']))return 6;
+  if(_kw(n,['salmon','trout','tuna','fish','mackerel','branzino','seabass','sea bass','octopus','bluefin','ceviche','lavr','oktap']))return 6;
+  if(_kw(n,['shrimp','prawn','crab','lobster']))return 5;
+  if(_kw(n,['lamb','beef','steak','ribeye','short rib','cevapi','cevap','elk','duck','rabbit','tartare','haché','hache','veal','sliders']))return 5;
+  if(_kw(n,['chicken','thigh','drumstick','turkey','pork','jerk','rotisserie','wings']))return 4;
+  if(_kw(n,['lentil','bean','chickpea','tofu','edamame','pea ']))return 2;
+  if(_kw(n,['egg','cheese','latte','collagen','whey','milk','yogurt','broth']))return .5;
+  return 1;
+}
+function isCherry(n){return _kw(n,['cherry','cherries']);}
+function goalDay(items){
+  let o={soluble:0,sat:0,fructose:0,purine:0,cherries:0,fibre:0};
+  items.forEach(i=>{const n=i.name,fat=N(i.fat_g),carb=N(i.carb_g),prot=N(i.protein_g),fib=N(i.fiber_g);
+    o.sat+=fat*satFrac(n); o.fructose+=carb*fructoseFrac(n);
+    o.soluble+=N(i.soluble_fiber_g)||fib*solubleFrac(n);
+    o.purine+=prot*purineRate(n); o.fibre+=fib;
+    if(isCherry(n))o.cherries+=carb;});
+  return o;
+}
+function goalAvg(ds){const t={soluble:0,sat:0,fructose:0,purine:0,cherries:0,fibre:0};ds.forEach(d=>{const g=goalDay(withSupp(DB.days[d].items));for(const k in t)t[k]+=g[k];});const n=ds.length||1;for(const k in t)t[k]/=n;return t;}
+function goalMedian(ds,k){const vs=ds.map(d=>goalDay(withSupp(DB.days[d].items))[k]).sort((a,b)=>a-b);if(!vs.length)return 0;const m=vs.length>>1;return vs.length%2?vs[m]:(vs[m-1]+vs[m])/2;}
+const GOALS=[
+  {name:'Lower LDL',levers:[
+    {k:'soluble',lbl:'Soluble fibre',dir:1,tgt:7,abs:'≥7g'},
+    {k:'sat',lbl:'Saturated fat',dir:-1,tgt:18,abs:'<18g'}],
+   hint:'Soluble fibre (psyllium · inulin · flax) up and saturated fat (PB · lamb · cheese) down lowers LDL. Fish, EVOO and avocado are the good fats.'},
+  {name:'Lower uric acid',levers:[
+    {k:'fructose',lbl:'Fructose',dir:-1,tgt:50,abs:'<50g'},
+    {k:'purine',lbl:'Purine load',dir:-1,tgt:null,abs:''}],
+   hint:'Fructose (your big fruit servings) is the main urate driver; purines come from fish/meat. Cherries are protective (uricosuric) — keep them.'}
+];
+function renderGoals(){
+  const el=document.getElementById('goalCard');if(!el)return;
+  const complete=dates().filter(d=>DB.days[d].status==='complete').sort();
+  if(complete.length<3){el.innerHTML='<h2>Goals · moving the markers</h2><div class="note">Close a few days to see how your diet is tracking toward lower LDL and urate.</div>';return;}
+  const last=n=>complete.slice(-n), d28=last(28),d7=last(7),d3=last(3);
+  const A7=goalAvg(d7),A3=goalAvg(d3),B={};['soluble','sat','fructose','purine','cherries','fibre'].forEach(k=>B[k]=goalMedian(d28,k));
+  // Colour follows the SLOPE across the window, not the mean against a baseline.
+  // A mean hides direction: 43.6/25.1/14.2 and 14.2/25.1/43.6 both average 27.6 —
+  // opposite realities, identical display. On 2026-08-04..06 saturated fat fell by
+  // two-thirds while the card showed RED and "rising", because one spike three days
+  // earlier dragged the mean above the 28-day median. Slope answers the question the
+  // card is actually for: am I moving the right way?
+  // Least-squares slope over the window's DAILY values, in units/day.
+  const slope=(ys)=>{const n=ys.length;if(n<2)return 0;
+    const mx=(n-1)/2, my=ys.reduce((a,b)=>a+b,0)/n;
+    let num=0,den=0;
+    ys.forEach((y,i)=>{num+=(i-mx)*(y-my);den+=(i-mx)*(i-mx);});
+    return den?num/den:0;};
+  // Dead-zone scaled to the series' own level, so a flat-but-noisy lever reads flat.
+  const trend=(ys,dir)=>{const m=ys.reduce((a,b)=>a+b,0)/(ys.length||1);
+    const s=slope(ys);
+    if(Math.abs(s)<Math.max(Math.abs(m)*0.04,0.25))return {s:'',c:'',sl:s};
+    const good=(s>0?1:-1)===dir;
+    return {s:s>0?'▲':'▼',c:good?'gd':'bd',sl:s};};
+  const series=(ds,k)=>ds.map(d=>goalDay(withSupp(DB.days[d].items))[k]);
+  // kept for the level badge only — "is today's level at target", a different question
+  const arrow=(cur,base,dir)=>{const dlt=cur-base;if(Math.abs(dlt)<Math.max(base*0.05,0.3))return {s:'',c:''};const good=(dlt>0?1:-1)===dir;return {s:dlt>0?'▲':'▼',c:good?'gd':'bd'};};
+  let html=`<h2>Goals · moving the markers <span style="color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0">(vs 28-day modal)</span></h2>`;
+  GOALS.forEach(G=>{
+    let good=0,bad=0;
+    const rows=G.levers.map(L=>{
+      const b=B[L.k],a7=A7[L.k],a3=A3[L.k];
+      const s3=series(d3,L.k),s7=series(d7,L.k);
+      const aw3=trend(s3,L.dir),aw7=trend(s7,L.dir);       // colour = slope
+      if(aw3.c==='gd')good++;else if(aw3.c==='bd')bad++;
+      // absolute badge
+      let abs='';
+      if(L.tgt!=null){const meet=L.dir>0?a3>=L.tgt:a3<=L.tgt;
+        abs=`<span class="gabs ${meet?'ok':(L.dir>0?'lo':'hi')}">${meet?'✓ '+L.abs:(L.dir>0?'below '+L.abs:'over '+L.abs)}</span>`;}
+      const u=L.k==='purine'?'':'g';
+      // the whole row carries the direction, not just the number — green = moving the
+      // right way on the 3-day, red = wrong way, neutral = inside the dead-zone
+      // the three daily values are shown, so a mean can never hide a spike again
+      const days3=s3.map(v=>r(v)).join(' → ');
+      return `<div class="glever dir-${aw3.c||'flat'}"><div class="glbl">${L.lbl}${abs}
+          <div class="gser">${days3}<span class="gsu">${u} last 3 days</span></div></div>
+        <div class="gvals">28d <b>${r(b)}${u}</b> · 7d <b class="${aw7.c}">${r(a7)}${aw7.s}</b> · 3d <b class="${aw3.c}">${r(a3)}${aw3.s}</b></div></div>`;
+    }).join('');
+    const verd=good&&!bad?['good','on track']:bad&&!good?['bad','drifting']:['mix','mixed'];
+    html+=`<div class="gsec"><div class="ghead">${G.name} <span class="arrow">↓</span><span class="gverd ${verd[0]}">${verd[1]}</span></div>
+      <div class="goalhint">${G.hint}</div>${rows}</div>`;
+  });
+  el.innerHTML=html;
 }
 
 // Full-circle macro donut: segments sized by each macro's share of total calories.
@@ -402,12 +602,6 @@ function ballSVG(segs){
   segs.forEach(g=>{const L=C*Math.max(Math.min(g.frac,1),0);if(L<=0.02)return;
     arcs+=`<circle cx="42" cy="42" r="${R}" stroke="${g.color}" stroke-width="8" fill="none" stroke-dasharray="${L} ${C-L}" stroke-dashoffset="${-s}" transform="rotate(-90 42 42)"/>`;s+=L;});
   return `<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="${R}" stroke="rgba(35,50,75,.09)" stroke-width="8" fill="none"/>${arcs}</svg>`;
-}
-function addWater(l){
-  const d=DB.current||localDate();
-  if(!DB.days[d])DB.days[d]={status:'in_progress',items:[]};
-  DB.days[d].water_l=Math.max(0,Math.round(((DB.days[d].water_l||0)+l)*100)/100);
-  render();
 }
 function renderHero(){
   const sel=DB.current||localDate();
@@ -433,8 +627,6 @@ function renderHero(){
     :ballSVG([]);
   document.getElementById('fibVal').textContent=r(tot);
   document.getElementById('fibSub').innerHTML=`<span style="color:var(--accent)">soluble ${r(sol)}g</span> · <span style="color:var(--good)">insoluble ${r(oth)}g</span>`;
-  const w=(day&&day.water_l)||0;
-  document.getElementById('watVal').textContent=w.toFixed(2).replace(/\.?0+$/,'')||'0';
 }
 
 function nowTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
@@ -478,10 +670,37 @@ function clearNew(){['nName','nK','nP','nF','nC','nFib','nNote'].forEach(id=>doc
 function addNew(){const it=readNew();if(!it.name)return toast('Name required');DB.days[DB.current].items.push(it);clearNew();render();toast('Added');}
 function ingest(){let raw=v('paste');if(!raw)return;try{let o=JSON.parse(cleanJSON(raw));
   if(o&&o.days){const added=[];Object.keys(o.days).forEach(d=>{const loc=DB.days[d];if(!loc||!loc.items.length){DB.days[d]=o.days[d];added.push(d);}});if(Array.isArray(o.known)){const have=new Set(DB.known.map(k=>k.name));o.known.forEach(k=>{if(k.name&&!have.has(k.name))DB.known.push(k);});}document.getElementById('paste').value='';render();toast('Imported: '+(added.join(', ')||'no new days'));return;}
-  const defDay=o.date||DB.current;let a=Array.isArray(o)?o:(o.items||[o]),n=0;a.forEach(x=>{if(!x.name)return;const d=x.date||defDay;if(!DB.days[d])DB.days[d]={status:'in_progress',items:[]};DB.days[d].items.push({name:x.name,meal:x.meal||'snack',time:x.time||nowTime(),kcal:N(x.kcal),protein_g:N(x.protein_g),fat_g:N(x.fat_g),carb_g:N(x.carb_g),fiber_g:N(x.fiber_g),soluble_fiber_g:N(x.soluble_fiber_g),confidence:x.confidence||'eyeballed',notes:x.notes||''});n++;});document.getElementById('paste').value='';render();toast(n+' item(s) added');}catch(e){toast('Bad JSON: '+e.message);}}
+  // grams and sodium_mg are carried through when present. grams is what micronutrients
+  // scale with; without it the PC has to back mass out of the calories, which fails on
+  // composite dishes. Both are OPTIONAL — absent stays absent rather than becoming 0,
+  // so "not estimated" is distinguishable from "measured zero".
+  const defDay=o.date||DB.current;let a=Array.isArray(o)?o:(o.items||[o]),n=0;a.forEach(x=>{if(!x.name)return;const d=x.date||defDay;if(!DB.days[d])DB.days[d]={status:'in_progress',items:[]};const it={name:x.name,meal:x.meal||'snack',time:x.time||nowTime(),kcal:N(x.kcal),protein_g:N(x.protein_g),fat_g:N(x.fat_g),carb_g:N(x.carb_g),fiber_g:N(x.fiber_g),soluble_fiber_g:N(x.soluble_fiber_g),confidence:x.confidence||'eyeballed',notes:x.notes||''};if(x.sodium_mg!=null&&x.sodium_mg!=='')it.sodium_mg=N(x.sodium_mg);if(x.grams!=null&&x.grams!=='')it.grams=N(x.grams);DB.days[d].items.push(it);n++;});document.getElementById('paste').value='';render();toast(n+' item(s) added');}catch(e){toast('Bad JSON: '+e.message);}}
 function importData(){let raw=v('imp');if(!raw)return;try{const o=JSON.parse(cleanJSON(raw));if(!o.days)return toast('Not a log file');DB=o;DB.current=DB.current||dates().slice(-1)[0];document.getElementById('imp').value='';render();toast('Loaded');}catch(e){toast('Bad JSON: '+e.message);}}
 function localDate(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function newDay(){const d=localDate();if(!DB.days[d])DB.days[d]={status:'in_progress',items:[]};DB.current=d;render();toast('New day '+d);}
+
+// Emit the log as a real .json FILE instead of a clipboard blob. On iOS the share
+// sheet is the useful path (Save to Files / OneDrive / Mail); the anchor download is
+// the fallback for browsers without file-share support.
+function saveFile(){
+  const json=JSON.stringify(DB,null,2);
+  const name='health-log_'+localDate()+'.json';
+  const file=new File([json],name,{type:'application/json'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:name})
+      .then(()=>toast('Shared '+name))
+      .catch(()=>downloadBlob(json,name));
+    return;
+  }
+  downloadBlob(json,name);
+}
+function downloadBlob(json,name){
+  const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));
+  const a=document.createElement('a');a.href=url;a.download=name;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+  toast('Saved '+name);
+}
 
 function copyData(){
   const json=JSON.stringify(DB,null,2);
