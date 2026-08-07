@@ -318,12 +318,6 @@ const SUPP={name:'Daily supplements (Viome + biotics + psyllium/inulin + creatin
 // storage (Claude account / browser) and in data/food_log/ on the PC.
 function seed(){return {
   days:{},
-  known:[
-    {name:'Nut latte (60% recipe, per cup)',meal:'drink',kcal:100,protein_g:3.3,fat_g:8,carb_g:4,fiber_g:0.4,confidence:'measured'},
-    {name:'Chicken-avocado salad',meal:'lunch',kcal:415,protein_g:32,fat_g:29,carb_g:9,fiber_g:6,confidence:'eyeballed'},
-    {name:'Blueberries 100g',meal:'snack',kcal:57,protein_g:0.7,fat_g:0.3,carb_g:14.5,fiber_g:2.4,confidence:'weighed'},
-    {name:'Bone broth, 1 cup',meal:'drink',kcal:45,protein_g:9,fat_g:1,carb_g:0,fiber_g:0,confidence:'eyeballed'},
-    {name:'Salmon breakfast salad (half avo, green onion, salmon)',meal:'breakfast',kcal:450,protein_g:25,fat_g:34,carb_g:10,fiber_g:6.3,confidence:'eyeballed'}],
   current:''};
 }
 
@@ -379,7 +373,6 @@ let DB=seed();
     // entries stick), but any day baked into seed() is never lost even if the
     // store returns an empty or partial state on reopen. Fixes "history vanished".
     DB.days=Object.assign({},seed().days,loaded.days);
-    if(Array.isArray(loaded.known)&&loaded.known.length)DB.known=loaded.known;
     if(loaded.current)DB.current=loaded.current;
   }
   const d=localDate();if(!DB.days[d])DB.days[d]={status:'in_progress',items:[]};DB.current=d;normalizeStatuses();
@@ -485,51 +478,42 @@ function render(){
 // then compare recent intake (3d, 7d) to the 28-day modal (median = typical day) and
 // to the absolute levels that actually move the markers.
 function _kw(n,a){n=(n||'').toLowerCase();return a.some(k=>n.includes(k));}
-function satFrac(n){
-  if(_kw(n,['coconut']))return .85;
-  if(_kw(n,['ghee','butter']))return .63;
-  if(_kw(n,['cheese','feta','brie','cheddar','string chees','parmesan','blue chees','tirokafteri','tzatziki']))return .6;
-  if(_kw(n,['lamb','beef','steak','ribeye','short rib','cevapi','cevap','tartare','elk','duck','rabbit','veal','haché','hache','sliders']))return .42;
-  if(_kw(n,['bacon']))return .38;
-  if(_kw(n,['egg']))return .32;
-  if(_kw(n,['chicken','thigh','drumstick','turkey','rotisserie','jerk','wings']))return .29;
-  if(_kw(n,['peanut butter','peanut']))return .2;
-  if(_kw(n,['salmon','trout','tuna','fish','branzino','seabass','sea bass','octopus','oyster','prawn','shrimp','sardine','mackerel','bluefin','ceviche','tonnato','gazpacho','lavr','oktap']))return .22;
-  if(_kw(n,['avocado','olive oil','evoo','dressing','salad','pine nut','nuts','almond','tofu','lentil','hummus','taramosalata','dip','pesto','veggie ball','fava']))return .14;
-  if(_kw(n,['latte','nut milk','nut latte']))return .12;
-  return .25;
+// ==== BEGIN GENERATED FOOD MODEL — analysis/foodmodel, via build_app_goal_model.py ====
+// One-model rule: these fractions live ONLY in analysis/foodmodel/foods.py. The
+// hand-tuned keyword chains that used to sit here were a rival model with the exact
+// ordering bugs the Python coverage gate was built to kill ("peanut butter"->butter
+// 63% sat, etc). Regenerate: py analysis/build_app_goal_model.py  (harness stage 2b
+// runs it). Unresolved items are NOT guessed — they count toward `unmodeled` and the
+// goal card says so, until the next model sync.
+const FOOD_ALIASES={"AM snack":"mixed_dish","Lentil dish, Batch 2":"lentil_b2"};
+const FOOD_MODEL={"allium":{"sat":0.0,"fru":0.2,"sol":0.5,"pur":1},"apple_pear":{"sat":0.0,"fru":0.55,"sol":0.4,"pur":1},"avocado":{"sat":0.14,"fru":0.1,"sol":0.3,"pur":1},"bacon":{"sat":0.38,"fru":0.0,"sol":0.3,"pur":4},"banana":{"sat":0.0,"fru":0.45,"sol":0.3,"pur":1},"beef":{"sat":0.42,"fru":0.0,"sol":0.3,"pur":5},"berry_dark":{"sat":0.0,"fru":0.42,"sol":0.3,"pur":1},"berry_red":{"sat":0.0,"fru":0.42,"sol":0.35,"pur":1},"bone_broth":{"sat":0.4,"fru":0.0,"sol":0.3,"pur":0.5},"brassica":{"sat":0.0,"fru":0.15,"sol":0.3,"pur":1},"butter":{"sat":0.63,"fru":0.0,"sol":0.3,"pur":0.5},"cevapi":{"sat":0.42,"fru":0.0,"sol":0.3,"pur":5},"cheese_hard":{"sat":0.63,"fru":0.0,"sol":0.3,"pur":0.5},"cheese_soft":{"sat":0.63,"fru":0.0,"sol":0.3,"pur":0.5},"cherry":{"sat":0.0,"fru":0.42,"sol":0.3,"pur":1},"chicken_breast":{"sat":0.28,"fru":0.0,"sol":0.3,"pur":4},"chicken_thigh":{"sat":0.28,"fru":0.0,"sol":0.3,"pur":4},"chicken_tofu_curry":{"sat":0.24,"fru":0.05,"sol":0.32,"pur":3},"chickpea":{"sat":0.12,"fru":0.05,"sol":0.35,"pur":2},"coconut":{"sat":0.87,"fru":0.0,"sol":0.35,"pur":1},"coffee_black":{"sat":0.0,"fru":0.0,"sol":0.3,"pur":1.0},"collagen":{"sat":0.0,"fru":0.0,"sol":0.3,"pur":0.5},"egg_white":{"sat":0.0,"fru":0.0,"sol":0.3,"pur":0.5},"egg_whole":{"sat":0.32,"fru":0.0,"sol":0.3,"pur":0.5},"fish_oil":{"sat":0.2,"fru":0.0,"sol":0.3,"pur":1.0},"fish_roe_dip":{"sat":0.16,"fru":0.0,"sol":0.25,"pur":6},"flax":{"sat":0.09,"fru":0.0,"sol":0.3,"pur":1},"game_meat":{"sat":0.36,"fru":0.0,"sol":0.3,"pur":5},"herb":{"sat":0.0,"fru":0.1,"sol":0.3,"pur":1},"lamb":{"sat":0.44,"fru":0.0,"sol":0.3,"pur":5},"leafy_veg":{"sat":0.2,"fru":0.15,"sol":0.25,"pur":1},"lentil":{"sat":0.114,"fru":0.05,"sol":0.35,"pur":2},"lentil_b2":{"sat":0.114,"fru":0.05,"sol":0.35,"pur":2},"milk_whole":{"sat":0.62,"fru":0.0,"sol":0.3,"pur":0.5},"mixed_dish":{"sat":0.3,"fru":0.15,"sol":0.28,"pur":3},"octopus":{"sat":0.2,"fru":0.0,"sol":0.3,"pur":6},"olive_oil":{"sat":0.14,"fru":0.0,"sol":0.3,"pur":1.0},"oyster":{"sat":0.25,"fru":0.0,"sol":0.3,"pur":6},"peanut":{"sat":0.2,"fru":0.2,"sol":0.2,"pur":2},"plant_sterol":{"sat":0.15,"fru":0.0,"sol":0.3,"pur":1.0},"potato":{"sat":0.0,"fru":0.02,"sol":0.25,"pur":1},"protein_latte":{"sat":0.16,"fru":0.0,"sol":0.3,"pur":0.5},"psyllium":{"sat":0.0,"fru":0.0,"sol":0.9,"pur":0},"raspberry":{"sat":0.0,"fru":0.42,"sol":0.35,"pur":1},"root_veg":{"sat":0.0,"fru":0.2,"sol":0.35,"pur":1},"salmon":{"sat":0.22,"fru":0.0,"sol":0.3,"pur":6},"seed":{"sat":0.18,"fru":0.0,"sol":0.2,"pur":1},"shrimp":{"sat":0.2,"fru":0.0,"sol":0.3,"pur":5},"squid":{"sat":0.25,"fru":0.0,"sol":0.3,"pur":6},"stone_fruit":{"sat":0.0,"fru":0.45,"sol":0.35,"pur":1},"tofu":{"sat":0.16,"fru":0.05,"sol":0.3,"pur":2},"tomato":{"sat":0.0,"fru":0.3,"sol":0.25,"pur":1},"tree_nut":{"sat":0.1,"fru":0.2,"sol":0.2,"pur":1},"trout":{"sat":0.22,"fru":0.0,"sol":0.3,"pur":6},"tuna_canned":{"sat":0.16,"fru":0.0,"sol":0.3,"pur":6},"tuna_fresh":{"sat":0.26,"fru":0.0,"sol":0.3,"pur":6},"veg_patty":{"sat":0.16,"fru":0.1,"sol":0.3,"pur":2},"veg_stew":{"sat":0.16,"fru":0.12,"sol":0.32,"pur":1},"vinegar":{"sat":0.0,"fru":0.3,"sol":0.3,"pur":1.0},"water":{"sat":0.0,"fru":0.0,"sol":0.3,"pur":1.0},"wellness_shot":{"sat":0.0,"fru":0.3,"sol":0.3,"pur":1.0},"whitefish":{"sat":0.22,"fru":0.0,"sol":0.3,"pur":6},"zucchini":{"sat":0.0,"fru":0.2,"sol":0.25,"pur":1}};
+const FOOD_RULES=[["peanut","peanut"],["\\btuna\\b.*\\bsteak\\b|\\bsteak\\b.*\\btuna\\b","tuna_fresh"],["\\begg white","egg_white"],["\\bplant sterol|col-sterol","plant_sterol"],["\\bcollagen\\b","collagen"],["\\bflax","flax"],["psyllium|inulin","psyllium"],["\\bepa\\b|fish oil|omega-?3 supp","fish_oil"],["chicken.?tofu|tofu curry","chicken_tofu_curry"],["raspberr","raspberry"],["\\bprotein (nut milk |nut )?latte|protein nut milk","protein_latte"],["\\bnut (milk )?latte|nut milk","protein_latte"],["\\bwater\\b","water"],["ginger|turmeric|wellness shot|dose ","wellness_shot"],["\\bmilk\\b","milk_whole"],["cappuccino|cortado|flat white|misto|americano|espresso|coffee|latte","coffee_black"],["bone broth","bone_broth"],["butter|ghee","butter"],["cheddar|parmesan|mozzarella|string chees|rossiy|hard chees","cheese_hard"],["feta|brie|havarti|sirene|brined chees|blue chees|chevre|cheese","cheese_soft"],["omelette|\\begg","egg_whole"],["salmon","salmon"],["trout","trout"],["tuna","tuna_canned"],["octopus|oktap","octopus"],["squid|lignje|calamar","squid"],["oyster","oyster"],["shrimp|prawn|eral","shrimp"],["bream|orada|seabass|sea bass|branzino|lavr|bass|whitefish|fish","whitefish"],["cevapi|cevap","cevapi"],["bacon","bacon"],["lamb|arni|laim|kontosouvli","lamb"],["beef|steak|ribeye|short rib|tartare|hach|veal|slider|mattu|ny strip|strip loin|srf","beef"],["elk|duck|rabbit|muyal","game_meat"],["chicken breast","chicken_breast"],["chicken|thigh|drumstick|rotisserie|turkey|wings|jerk","chicken_thigh"],["lentil.*batch\\s*2|lentil.*b2","lentil_b2"],["lentil","lentil"],["tofu|edamame","tofu"],["chickpea|hummus|fava|gigantes|\\bbean","chickpea"],["almond|walnut|pine nut|cashew|pistachio|mixed nut|\\bnuts\\b","tree_nut"],["pumpkin seed|sesame|sunflower|pepita|\\bseeds?\\b","seed"],["olive oil|evoo|dressing|vinaigret|pesto|aioli|ranch|green goddess|salsa verde|chili oil","olive_oil"],["avocado|guac","avocado"],["coconut","coconut"],["blueberr|blackberr","berry_dark"],["strawberr|raspberr|currant|\\bberr","berry_red"],["cherr","cherry"],["apple|pear","apple_pear"],["peach|nectarine|plum|apricot","stone_fruit"],["banana","banana"],["cabbage|kelj|broccoli|cauliflow|kupus|savoy","brassica"],["carrot|radish|beet|turnip","root_veg"],["tomato|cucumber|pepper|gazpacho","tomato"],["garlic|onion|leek|allium|shallot","allium"],["potato|blitva|rosti|frites","potato"],["zucchini|asparagus|courgette","zucchini"],["lettuce|arugula|greens|salad|frisee|romaine|spinach|micro|maroul|sopska|šopska|slaw","leafy_veg"],["vinegar|acv|balsamic|mustard","vinegar"],["taramo|tarama","fish_roe_dip"],["veggie ball|falafel","veg_patty"],["basil|parsley|dill|mint|herb|cilantro|oregano","herb"],["\bstew\b|tagine|moroccan","veg_stew"],["tonnato","mixed_dish"]];
+function _foldJS(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function _headName(n){n=_foldJS((n||'').trim().toLowerCase());const h=n.split(/[(,—–]|\s-\s/)[0].trim();return h||n;}
+function foodModelOf(n){
+  n=(n||'').trim();if(!n)return null;
+  if(FOOD_ALIASES[n]&&FOOD_MODEL[FOOD_ALIASES[n]])return FOOD_MODEL[FOOD_ALIASES[n]];
+  const h=_headName(n);
+  for(const [re,k] of FOOD_RULES){if(new RegExp(re,'i').test(h))return FOOD_MODEL[k];}
+  const low=_foldJS(n.toLowerCase());
+  for(const [re,k] of FOOD_RULES){if(new RegExp(re,'i').test(low))return FOOD_MODEL[k];}
+  return null;
 }
-function fructoseFrac(n){
-  if(_kw(n,['apple','pear','grape','honey','fig ','date','mango']))return .55;
-  if(_kw(n,['peach','nectarine','plum','apricot','banana','melon','watermelon']))return .45;
-  if(_kw(n,['cherry','cherries','blueberr','strawberr','blackberr','raspberr','berr']))return .42;
-  if(_kw(n,['lettuce','radish','salad','greens','arugula','cucumber','onion','garlic','asparagus','cauliflower','tomato','veg']))return .15;
-  if(_kw(n,['potato','lentil','tofu','rice','oat','chickpea','hummus','stew','fava','edamame','veggie ball','egg']))return .05;
-  return .1;
-}
-function solubleFrac(n){return _kw(n,['psyllium','inulin','oat','flax','chia','avocado','lentil','chickpea','bean','pear','apple','citrus','carrot','stew'])?.4:.3;}
-function purineRate(n){ // relative mg per g protein
-  if(_kw(n,['anchov','sardine','mussel','scallop','organ','liver','herring']))return 8;
-  if(_kw(n,['oyster']))return 6;
-  if(_kw(n,['salmon','trout','tuna','fish','mackerel','branzino','seabass','sea bass','octopus','bluefin','ceviche','lavr','oktap']))return 6;
-  if(_kw(n,['shrimp','prawn','crab','lobster']))return 5;
-  if(_kw(n,['lamb','beef','steak','ribeye','short rib','cevapi','cevap','elk','duck','rabbit','tartare','haché','hache','veal','sliders']))return 5;
-  if(_kw(n,['chicken','thigh','drumstick','turkey','pork','jerk','rotisserie','wings']))return 4;
-  if(_kw(n,['lentil','bean','chickpea','tofu','edamame','pea ']))return 2;
-  if(_kw(n,['egg','cheese','latte','collagen','whey','milk','yogurt','broth']))return .5;
-  return 1;
-}
+// ==== END GENERATED FOOD MODEL ====
 function isCherry(n){return _kw(n,['cherry','cherries']);}
 function goalDay(items){
-  let o={soluble:0,sat:0,fructose:0,purine:0,cherries:0,fibre:0};
+  let o={soluble:0,sat:0,fructose:0,purine:0,cherries:0,fibre:0,unmodeled:0};
   items.forEach(i=>{const n=i.name,fat=N(i.fat_g),carb=N(i.carb_g),prot=N(i.protein_g),fib=N(i.fiber_g);
-    o.sat+=fat*satFrac(n); o.fructose+=carb*fructoseFrac(n);
-    o.soluble+=N(i.soluble_fiber_g)||fib*solubleFrac(n);
-    o.purine+=prot*purineRate(n); o.fibre+=fib;
+    if(i._auto){o.soluble+=N(i.soluble_fiber_g)||0;o.fibre+=fib;return;}  // daily supplement: measured values, no model needed
+    const f=foodModelOf(n);
+    if(!f){o.unmodeled++;return;}   // never guessed — see GENERATED FOOD MODEL note
+    o.sat+=fat*f.sat; o.fructose+=Math.max(carb-fib,0)*f.fru;   // fructose on NET carb, same basis as schema.apply
+    o.soluble+=N(i.soluble_fiber_g)||fib*f.sol;
+    o.purine+=prot*f.pur; o.fibre+=fib;
     if(isCherry(n))o.cherries+=carb;});
   return o;
 }
-function goalAvg(ds){const t={soluble:0,sat:0,fructose:0,purine:0,cherries:0,fibre:0};ds.forEach(d=>{const g=goalDay(withSupp(DB.days[d].items));for(const k in t)t[k]+=g[k];});const n=ds.length||1;for(const k in t)t[k]/=n;return t;}
+function goalAvg(ds){const t={soluble:0,sat:0,fructose:0,purine:0,cherries:0,fibre:0,unmodeled:0};ds.forEach(d=>{const g=goalDay(withSupp(DB.days[d].items));for(const k in t)t[k]+=g[k];});const n=ds.length||1;for(const k in t)t[k]/=n;return t;}
 function goalMedian(ds,k){const vs=ds.map(d=>goalDay(withSupp(DB.days[d].items))[k]).sort((a,b)=>a-b);if(!vs.length)return 0;const m=vs.length>>1;return vs.length%2?vs[m]:(vs[m-1]+vs[m])/2;}
 const GOALS=[
   {name:'Lower LDL',levers:[
@@ -566,9 +550,9 @@ function renderGoals(){
     const good=(s>0?1:-1)===dir;
     return {s:s>0?'▲':'▼',c:good?'gd':'bd',sl:s};};
   const series=(ds,k)=>ds.map(d=>goalDay(withSupp(DB.days[d].items))[k]);
-  // kept for the level badge only — "is today's level at target", a different question
-  const arrow=(cur,base,dir)=>{const dlt=cur-base;if(Math.abs(dlt)<Math.max(base*0.05,0.3))return {s:'',c:''};const good=(dlt>0?1:-1)===dir;return {s:dlt>0?'▲':'▼',c:good?'gd':'bd'};};
   let html=`<h2>Goals · moving the markers <span style="color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0">(vs 28-day modal)</span></h2>`;
+  const unmod=goalAvg(d7).unmodeled;
+  if(unmod>0)html+=`<div class="note">⚠ ~${r(unmod)} item(s)/day this week aren't in the food model yet — goal numbers undercount them until the next model sync (py analysis/build_app_goal_model.py).</div>`;
   GOALS.forEach(G=>{
     let good=0,bad=0;
     const rows=G.levers.map(L=>{
@@ -675,7 +659,7 @@ function readNew(){return {name:v('nName'),meal:v('nMeal'),time:v('nTime')||nowT
 function clearNew(){['nName','nK','nP','nF','nC','nFib','nNote'].forEach(id=>document.getElementById(id).value='');}
 function addNew(){const it=readNew();if(!it.name)return toast('Name required');DB.days[DB.current].items.push(it);clearNew();render();toast('Added');}
 function ingest(){let raw=v('paste');if(!raw)return;try{let o=JSON.parse(cleanJSON(raw));
-  if(o&&o.days){const added=[];Object.keys(o.days).forEach(d=>{const loc=DB.days[d];if(!loc||!loc.items.length){DB.days[d]=o.days[d];added.push(d);}});if(Array.isArray(o.known)){const have=new Set(DB.known.map(k=>k.name));o.known.forEach(k=>{if(k.name&&!have.has(k.name))DB.known.push(k);});}document.getElementById('paste').value='';render();toast('Imported: '+(added.join(', ')||'no new days'));return;}
+  if(o&&o.days){const added=[];Object.keys(o.days).forEach(d=>{const loc=DB.days[d];if(!loc||!loc.items.length){DB.days[d]=o.days[d];added.push(d);}});document.getElementById('paste').value='';render();toast('Imported: '+(added.join(', ')||'no new days'));return;}
   // grams and sodium_mg are carried through when present. grams is what micronutrients
   // scale with; without it the PC has to back mass out of the calories, which fails on
   // composite dishes. Both are OPTIONAL — absent stays absent rather than becoming 0,
