@@ -531,24 +531,14 @@ function renderGoals(){
   if(complete.length<3){el.innerHTML='<h2>Goals · moving the markers</h2><div class="note">Close a few days to see how your diet is tracking toward lower LDL and urate.</div>';return;}
   const last=n=>complete.slice(-n), d28=last(28),d7=last(7),d3=last(3);
   const A7=goalAvg(d7),A3=goalAvg(d3),B={};['soluble','sat','fructose','purine','cherries','fibre'].forEach(k=>B[k]=goalMedian(d28,k));
-  // Colour follows the SLOPE across the window, not the mean against a baseline.
-  // A mean hides direction: 43.6/25.1/14.2 and 14.2/25.1/43.6 both average 27.6 —
-  // opposite realities, identical display. On 2026-08-04..06 saturated fat fell by
-  // two-thirds while the card showed RED and "rising", because one spike three days
-  // earlier dragged the mean above the 28-day median. Slope answers the question the
-  // card is actually for: am I moving the right way?
-  // Least-squares slope over the window's DAILY values, in units/day.
-  const slope=(ys)=>{const n=ys.length;if(n<2)return 0;
-    const mx=(n-1)/2, my=ys.reduce((a,b)=>a+b,0)/n;
-    let num=0,den=0;
-    ys.forEach((y,i)=>{num+=(i-mx)*(y-my);den+=(i-mx)*(i-mx);});
-    return den?num/den:0;};
-  // Dead-zone scaled to the series' own level, so a flat-but-noisy lever reads flat.
-  const trend=(ys,dir)=>{const m=ys.reduce((a,b)=>a+b,0)/(ys.length||1);
-    const s=slope(ys);
-    if(Math.abs(s)<Math.max(Math.abs(m)*0.04,0.25))return {s:'',c:'',sl:s};
-    const good=(s>0?1:-1)===dir;
-    return {s:s>0?'▲':'▼',c:good?'gd':'bd',sl:s};};
+  // Arrow = window comparison (is the shorter window better than the longer?).
+  // 7d arrow: 7d avg vs 28d median.  3d arrow: 3d avg vs 7d avg.
+  // Row colour: does the 3d average meet the absolute target?
+  // Dead-zone: max(5% of base, 0.3) — small fluctuations read flat.
+  const compare=(cur,base,dir)=>{const d=cur-base;
+    if(Math.abs(d)<Math.max(Math.abs(base)*0.05,0.3))return {s:'',c:''};
+    const good=(d>0?1:-1)===dir;
+    return {s:d>0?'▲':'▼',c:good?'gd':'bd'};};
   const series=(ds,k)=>ds.map(d=>goalDay(withSupp(DB.days[d].items))[k]);
   let html=`<h2>Goals · moving the markers <span style="color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0">(vs 28-day modal)</span></h2>`;
   const unmod=goalAvg(d7).unmodeled;
@@ -557,19 +547,22 @@ function renderGoals(){
     let good=0,bad=0;
     const rows=G.levers.map(L=>{
       const b=B[L.k],a7=A7[L.k],a3=A3[L.k];
-      const s3=series(d3,L.k),s7=series(d7,L.k);
-      const aw3=trend(s3,L.dir),aw7=trend(s7,L.dir);       // colour = slope
-      if(aw3.c==='gd')good++;else if(aw3.c==='bd')bad++;
+      const s3=series(d3,L.k);
+      const aw7=compare(a7,b,L.dir);        // 7d avg vs 28d baseline
+      const aw3=compare(a3,a7,L.dir);       // 3d avg vs 7d avg
+      // Row colour: target hit (3d avg) when target exists, else 3d arrow
+      let rowC;
+      if(L.tgt!=null){rowC=(L.dir>0?a3>=L.tgt:a3<=L.tgt)?'gd':'bd';}
+      else{rowC=aw3.c||'flat';}
+      if(rowC==='gd')good++;else if(rowC==='bd')bad++;
       // absolute badge
       let abs='';
-      if(L.tgt!=null){const meet=L.dir>0?a3>=L.tgt:a3<=L.tgt;
+      if(L.tgt!=null){const meet=rowC==='gd';
         abs=`<span class="gabs ${meet?'ok':(L.dir>0?'lo':'hi')}">${meet?'✓ '+L.abs:(L.dir>0?'below '+L.abs:'over '+L.abs)}</span>`;}
       const u=L.k==='purine'?'':'g';
-      // the whole row carries the direction, not just the number — green = moving the
-      // right way on the 3-day, red = wrong way, neutral = inside the dead-zone
-      // the three daily values are shown, so a mean can never hide a spike again
+      // row = target status; arrows = window-over-window momentum
       const days3=s3.map(v=>r(v)).join(' → ');
-      return `<div class="glever dir-${aw3.c||'flat'}"><div class="glbl">${L.lbl}${abs}
+      return `<div class="glever dir-${rowC}"><div class="glbl">${L.lbl}${abs}
           <div class="gser">${days3}<span class="gsu">${u} last 3 days</span></div></div>
         <div class="gvals">28d <b>${r(b)}${u}</b> · 7d <b class="${aw7.c}">${r(a7)}${aw7.s}</b> · 3d <b class="${aw3.c}">${r(a3)}${aw3.s}</b></div></div>`;
     }).join('');
