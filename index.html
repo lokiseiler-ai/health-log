@@ -33,7 +33,7 @@
   .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:11px 16px 9px}
   .view{display:none}.view.on{display:block}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:25px;padding:18px;margin-bottom:16px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-  .hero{text-align:center;padding:5px 0 20px}
+  .hero{text-align:center;padding:5px 0 20px;touch-action:pan-y}
   .bigringbox{position:relative;width:248px;height:248px;margin:0 auto}
   .bigringbox svg{width:248px;height:248px;display:block}
   .bigval{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
@@ -102,9 +102,7 @@
   .avgcell span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
   .avgcell b{font-size:22px;font-variant-numeric:tabular-nums}
   .avgcell small{display:block;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.35}
-  .daynav{display:flex;align-items:center;justify-content:center;gap:11px;margin:2px 0 9px}
-  .dayarrow{width:45px;padding:7px 0;font-size:21px;font-weight:800;border-radius:14px;background:var(--panel2);color:var(--accent);line-height:1.2;border:1px solid var(--line)}
-  .dayarrow:disabled{opacity:.25}
+  .daynav{display:flex;align-items:center;justify-content:center;margin:2px 0 9px}
   .daysel{text-align:center;font-size:18px;font-weight:800;min-width:170px}
   .daysel small{display:inline-block;font-size:11px;font-weight:800;color:#0b0d10;background:var(--accent);border-radius:11px;padding:2px 9px;margin-left:7px;text-transform:uppercase;letter-spacing:.08em;vertical-align:2px}
   #endDayBtn{width:100%;margin-top:14px;font-weight:800}
@@ -172,12 +170,10 @@
 
 <section id="viewToday" class="view on">
   <div class="daynav">
-    <button class="dayarrow" id="dayPrev" onclick="stepDay(-1)">‹</button>
     <div class="daysel" id="ringDate"></div>
-    <button class="dayarrow" id="dayNext" onclick="stepDay(1)">›</button>
   </div>
   <div class="chiprow" id="chipRow"></div>
-  <div class="hero">
+  <div class="hero" id="daySwipe">
     <div class="bigringbox">
       <div id="bigRing"></div>
       <div class="bigval"><b id="calVal"></b><span id="calRefLbl"></span></div>
@@ -341,8 +337,27 @@ function addPreset(i){
 }
 function stepDay(dir){
   const ds=dates(),i=ds.indexOf(DB.current),j=i+dir;
-  if(j<0||j>=ds.length)return;
+  if(j<0||j>=ds.length)return false;
   DB.current=ds[j];render();
+  return true;
+}
+function bindDaySwipe(){
+  const el=document.getElementById('daySwipe');
+  if(!el||el.dataset.swipe)return;
+  el.dataset.swipe='1';
+  let x0=0,y0=0,live=false;
+  const start=(x,y)=>{x0=x;y0=y;live=true;};
+  const end=(x,y)=>{
+    if(!live)return;live=false;
+    const dx=x-x0,dy=y-y0;
+    if(Math.abs(dx)<48||Math.abs(dx)<Math.abs(dy)*1.35)return;
+    stepDay(dx<0?1:-1);
+  };
+  el.addEventListener('touchstart',e=>{const t=e.changedTouches[0];start(t.clientX,t.clientY);},{passive:true});
+  el.addEventListener('touchend',e=>{const t=e.changedTouches[0];end(t.clientX,t.clientY);},{passive:true});
+  el.addEventListener('touchcancel',()=>{live=false;},{passive:true});
+  el.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;if(e.button)return;start(e.clientX,e.clientY);});
+  window.addEventListener('pointerup',e=>{if(e.pointerType==='touch')return;end(e.clientX,e.clientY);});
 }
 const SUPP={name:'Daily supplements (Viome + biotics + psyllium/inulin + creatine 5g)',meal:'supplement',kcal:5,protein_g:0,fat_g:0,carb_g:0,fiber_g:4,soluble_fiber_g:4,confidence:'measured',notes:'auto-applied daily; +~4g soluble fiber (~5g psyllium+inulin mix, ~1g inulin); creatine 5 g',_auto:true,_autoKind:'stack'};
 // 2 Col-Sterol softgels = 10 kcal / 1 g fat (label: 5 kcal + 0.5 g fat each, 500 mg sterols).
@@ -448,6 +463,7 @@ let DB=seed();
   const d=localDate();if(!DB.days[d])DB.days[d]={status:'in_progress',items:[]};DB.current=d;normalizeStatuses();
   renderPresets();
   render();
+  bindDaySwipe();
 })();
 const N=v=>Number(v)||0, F=['kcal','protein_g','fat_g','carb_g','fiber_g'];
 function withSupp(it){return (it||[]).some(isStackItem)?it:[...(it||[]),{...SUPP}];}
@@ -525,10 +541,6 @@ function render(){
   });
   const t=totals(items);
   document.getElementById('tot').innerHTML=`<span>Total (est.)</span><span>${r(t.kcal)} kcal · ${r(t.protein_g)}P ${r(t.fat_g)}F ${r(t.carb_g)}C · ${r(t.fiber_g)} fib</span>`;
-  const ds=dates(),di=ds.indexOf(DB.current);
-  const pv=document.getElementById('dayPrev'),nx=document.getElementById('dayNext');
-  if(pv)pv.disabled=di<=0;
-  if(nx)nx.disabled=di<0||di>=ds.length-1;
   renderHero();
   renderChips();
   renderAvgStrip();
