@@ -147,8 +147,10 @@
   .tabbar button.on{background:rgba(255,255,255,.12);color:var(--txt)}
   .sheet{position:fixed;inset:0;z-index:20}
   .sheetbg{position:absolute;inset:0;background:rgba(0,0,0,.45)}
-  .sheetbody{position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow:auto;background:#14171c;border-radius:22px 22px 0 0;padding:10px 16px 28px;border:1px solid var(--line)}
-  .sheethandle{width:40px;height:4px;border-radius:4px;background:rgba(255,255,255,.22);margin:6px auto 12px}
+  .sheetbody{position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow:auto;background:#14171c;border-radius:22px 22px 0 0;padding:10px 16px calc(36px + env(safe-area-inset-bottom));border:1px solid var(--line)}
+  .sheethead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px}
+  .sheethead h2{margin:0;font-size:18px;font-weight:800;letter-spacing:.02em;color:var(--txt);text-transform:none}
+  .sheetx{width:40px;height:40px;border-radius:20px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:22px;font-weight:600;padding:0;line-height:1;flex-shrink:0}
   .toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:var(--good);color:#0b0d10;padding:11px 18px;border-radius:22px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
   .toast.show{opacity:1}
   /* Muted grey matches the mist band of the hills photo. .lift swaps it to teal
@@ -236,7 +238,10 @@
   <div class="sheetbg" onclick="closeAdd()"></div>
   <div class="sheetbody">
     <div class="sheethandle"></div>
-    <h2>Add</h2>
+    <div class="sheethead">
+      <h2>Add</h2>
+      <button class="sheetx" onclick="closeAdd()" aria-label="Close">×</button>
+    </div>
     <div class="sheetsec">
       <h3>Quick add</h3>
       <div class="presets" id="presetRow"></div>
@@ -267,6 +272,7 @@
       </details>
     </div>
     <p class="note">Estimates. Daily stack (Viome + fibre + creatine 5 g + 2 plant sterols) is auto-applied.</p>
+    <button class="big" onclick="closeAdd()">Close</button>
   </div>
 </div>
 
