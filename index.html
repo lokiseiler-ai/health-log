@@ -149,6 +149,12 @@
   .sheethandle{width:40px;height:4px;border-radius:4px;background:rgba(255,255,255,.22);margin:6px auto 12px}
   .toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:var(--good);color:#0b0d10;padding:11px 18px;border-radius:22px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
   .toast.show{opacity:1}
+  /* Muted grey matches the mist band of the hills photo. .lift swaps it to teal
+     while that text occupies that viewport strip — not grass-green, which would
+     vanish on the sunlit slopes. */
+  .note,.card h2,.mealhead,.msplit,.gcount,.gchip,#storeBadge,.avgcell span,.avgcell small,.histleg,.hdate,.goalhint,.cbarhead .cv,.cbarexp,.bigval span,.histtog button,label,.sheetsec h3,.presets button small{transition:color .22s ease}
+  .lift{color:var(--accent)!important}
+  .lift .gcirc{color:var(--txt)!important}
 </style>
 </head>
 <body>
@@ -523,6 +529,7 @@ function render(){
   renderTypeToday();
   setTab(uiTab);
   save();
+  queueLift();
 }
 
 // ============ GOAL TRACKING: move LDL & urate the right way ============
@@ -921,6 +928,23 @@ function copyData(){
   if(!done){sink.style.left='0';sink.style.opacity='1';sink.focus();sink.select();}
 }
 let tt;function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('show'),1800);}
+// Grey labels sit on a fixed photo. The mist/horizon strip (~15–54% of the
+// screen) is the same tone as --muted; teal still reads on mist AND on the hills.
+const SOFT_SEL='.note,.card h2,.mealhead,.msplit,.gcount,.gchip,#storeBadge,.avgcell span,.avgcell small,.histleg,.hdate,.goalhint,.cbarhead .cv,.cbarexp,.bigval span,.histtog button,label,.sheetsec h3,.presets button small';
+let liftQ=0;
+function queueLift(){if(liftQ)return;liftQ=requestAnimationFrame(()=>{liftQ=0;liftSoft();});}
+function liftSoft(){
+  const h=window.innerHeight||1,a=h*0.15,b=h*0.54;
+  document.querySelectorAll(SOFT_SEL).forEach(el=>{
+    if(el.closest('.tabbar,.sheet')){el.classList.remove('lift');return;}
+    if(el.classList.contains('on')){el.classList.remove('lift');return;}
+    const r=el.getBoundingClientRect();
+    el.classList.toggle('lift', r.bottom>a && r.top<b);
+  });
+}
+window.addEventListener('scroll',queueLift,{passive:true});
+window.addEventListener('resize',queueLift);
+if(window.visualViewport)window.visualViewport.addEventListener('resize',queueLift);
 </script>
 </body>
 </html>
