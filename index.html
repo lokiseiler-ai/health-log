@@ -42,7 +42,9 @@
   .heroverdict{font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;font-size:22px;margin:8px 0 12px;color:var(--txt)}
   .chiprow{display:flex;gap:4px;justify-content:space-between;margin:4px 0 10px}
   .gchip{flex:1;min-width:0;background:none;border:none;padding:6px 2px;color:var(--muted);border-radius:16px}
-  .gchip .gcirc{width:54px;height:54px;border-radius:50%;border:2px solid var(--track);margin:0 auto 5px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:var(--txt);font-variant-numeric:tabular-nums}
+  .gchip .gcirc{position:relative;width:54px;height:54px;border-radius:50%;border:none;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;color:var(--txt);font-variant-numeric:tabular-nums}
+  .gchip .gcirc svg{position:absolute;inset:0;width:54px;height:54px;overflow:visible}
+  .gchip .gcirc b{position:relative;z-index:1;font-size:11px;font-weight:800}
   .gchip span{display:block;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
   .gchip.on{color:var(--accent)}
   .gchip.on .gcirc{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,209,197,.16)}
@@ -642,13 +644,27 @@ function ballSVG(segs){
     arcs+=`<circle cx="42" cy="42" r="${R}" stroke="${g.color}" stroke-width="8" fill="none" stroke-dasharray="${L} ${C-L}" stroke-dashoffset="${-s}" transform="rotate(-90 42 42)"/>`;s+=L;});
   return `<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="${R}" stroke="rgba(35,50,75,.09)" stroke-width="8" fill="none"/>${arcs}</svg>`;
 }
-function progressRingSVG(frac,color){
-  const R=92,C=2*Math.PI*R,f=Math.max(0,Math.min(frac,1)),L=C*f;
-  return `<svg viewBox="0 0 220 220">
-    <circle cx="110" cy="110" r="${R}" stroke="rgba(255,255,255,.10)" stroke-width="12" fill="none"/>
-    <circle cx="110" cy="110" r="${R}" stroke="${color}" stroke-width="12" fill="none" stroke-linecap="round"
-      stroke-dasharray="${L} ${C-L}" transform="rotate(-90 110 110)"/>
-  </svg>`;
+function shadeHex(hex,t){
+  // Mix toward black. t=0 same colour, t=1 black.
+  const n=String(hex||'').replace('#','');
+  if(n.length!==6)return hex;
+  const d=i=>{const v=parseInt(n.slice(i,i+2),16);return Math.round(v*(1-t)).toString(16).padStart(2,'0');};
+  return '#'+d(0)+d(2)+d(4);
+}
+function ringArc(cx,R,W,frac,color){
+  if(frac<=0.001)return '';
+  if(frac>=0.999)return `<circle cx="${cx}" cy="${cx}" r="${R}" stroke="${color}" stroke-width="${W}" fill="none"/>`;
+  const C=2*Math.PI*R,L=C*frac;
+  return `<circle cx="${cx}" cy="${cx}" r="${R}" stroke="${color}" stroke-width="${W}" fill="none" stroke-linecap="round" stroke-dasharray="${L} ${C-L}" transform="rotate(-90 ${cx} ${cx})"/>`;
+}
+function progressRingSVG(frac,color,size){
+  // Under 1 = open arc. Over 1 = full ring + darker laps from 12 o'clock (Apple-style).
+  size=size||220;frac=Math.max(0,N(frac));
+  const cx=size/2,W=size>100?12:5,R=cx-W-2;
+  const track=`<circle cx="${cx}" cy="${cx}" r="${R}" stroke="rgba(255,255,255,.10)" stroke-width="${W}" fill="none"/>`;
+  const laps=[Math.min(frac,1),Math.min(Math.max(frac-1,0),1),Math.min(Math.max(frac-2,0),1)];
+  const cols=[color,shadeHex(color,0.34),shadeHex(color,0.55)];
+  return `<svg viewBox="0 0 ${size} ${size}" overflow="visible">${track}${laps.map((f,i)=>ringArc(cx,R,W,f,cols[i])).join('')}</svg>`;
 }
 function heroLine(chip,today,base){
   if(!base)return 'No closed week to compare yet';
@@ -668,10 +684,13 @@ function renderChips(){
   const el=document.getElementById('chipRow');if(!el)return;
   const day=DB.days[DB.current];
   const t=day?totals(withSupp(day.items)):{kcal:0,protein_g:0,fat_g:0,carb_g:0,fiber_g:0};
+  const wk=weekDays(DB.current), av=wk.length?avgOver(wk):null;
   el.innerHTML=CHIPS.map(c=>{
-    const v=t[c.field], shown=c.k==='kcal'?Math.round(v):r(v);
+    const v=N(t[c.field]), shown=c.k==='kcal'?Math.round(v):r(v);
+    const base=av?N(av[c.field]):0;
     return `<button class="gchip${uiChip===c.k?' on':''}" onclick="setChip('${c.k}')">
-      <div class="gcirc">${shown}</div><span>${c.lbl}</span></button>`;
+      <div class="gcirc">${progressRingSVG(base?v/base:0,c.color,54)}<b>${shown}</b></div>
+      <span>${c.lbl}</span></button>`;
   }).join('');
 }
 function renderHero(){
