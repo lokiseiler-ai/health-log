@@ -23,7 +23,7 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{height:100%;background:#0b0d10}
-  body{margin:0;min-height:100%;background:transparent;color:var(--txt);font:16px/1.5 'Nunito',ui-rounded,'SF Pro Rounded',-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:118px;isolation:isolate}
+  body{margin:0;min-height:100%;background:transparent;color:var(--txt);font:16px/1.5 'Nunito',ui-rounded,'SF Pro Rounded',-apple-system,Segoe UI,Roboto,sans-serif;padding-top:env(safe-area-inset-top);padding-bottom:calc(118px + env(safe-area-inset-bottom));isolation:isolate}
   #scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
   #scene img{position:absolute;inset:-32px;width:calc(100% + 64px);height:calc(100% + 64px);object-fit:cover;object-position:center 38%;filter:blur(4px) brightness(1.28) saturate(1.18)}
   #scene::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,10,12,.38) 0%,rgba(8,10,12,.10) 18%,rgba(8,10,12,.02) 40%,rgba(8,10,12,.20) 66%,rgba(8,10,12,.68) 100%)}
@@ -60,15 +60,14 @@
   .copy{background:rgba(110,207,154,.18);color:var(--good);border:1px solid rgba(110,207,154,.28);font-weight:700;padding:8px 12px}
   .row{display:flex;gap:8px;flex-wrap:wrap}
   .row>div{flex:1;min-width:0}
-  .mealgrp{margin-top:14px}.mealgrp:first-child{margin-top:2px}
-  .mealhead{display:flex;justify-content:space-between;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:2px}
-  .mitem{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .mealgrp{margin-top:10px}.mealgrp:first-child{margin-top:0}
+  .mealhead{display:flex;justify-content:space-between;align-items:baseline;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:1px}
+  .mitem{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)}
   .mitem:last-child{border-bottom:none}
-  .mmain{flex:1;min-width:0}
-  .mname{font-size:15px;font-weight:600;line-height:1.35}
-  .mmeta{font-size:12px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
-  .mkcal{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
-  .mkcal small{font-size:11px;color:var(--muted);font-weight:400}
+  .mmain{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px}
+  .mname{font-size:14px;font-weight:600;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
+  .msplit{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
+  .mkcal{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
   .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:1px}
   .dot.c-weighed{background:var(--good)}.dot.c-measured{background:var(--accent)}.dot.c-eyeballed{background:var(--warn)}
   .rm{color:var(--bad);background:none;border:none;font-size:20px;padding:0 6px;width:auto}
@@ -137,8 +136,11 @@
   .trow .tl{display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:5px}
   .tbar{display:flex;height:10px;border-radius:8px;overflow:hidden;background:var(--track)}
   .tbar>span{display:block;height:100%}
-  .fab{position:fixed;right:18px;bottom:78px;z-index:12;width:56px;height:56px;border-radius:50%;border:none;background:#fff;color:#0b0d10;font-size:32px;font-weight:700;line-height:1;padding:0;box-shadow:0 8px 24px rgba(0,0,0,.35)}
-  .tabbar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:11;display:flex;gap:4px;padding:6px;border-radius:28px;background:rgba(22,24,28,.82);border:1px solid var(--line);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);width:min(420px,calc(100% - 28px))}
+  .fab{position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:12;width:56px;height:56px;border-radius:50%;border:none;background:#fff;color:#0b0d10;font-size:32px;font-weight:700;line-height:1;padding:0;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+  .tabbar{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:11;display:flex;gap:4px;padding:6px;border-radius:28px;background:rgba(22,24,28,.82);border:1px solid var(--line);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);width:min(420px,calc(100% - 28px))}
+  .backuprow{display:flex;gap:8px;margin:0 0 10px}
+  .backuprow button{flex:1;min-width:0}
+  #imp{min-height:72px}
   .tabbar button{flex:1;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:800;padding:10px 8px;border-radius:22px}
   .tabbar button.on{background:rgba(255,255,255,.12);color:var(--txt)}
   .sheet{position:fixed;inset:0;z-index:20}
@@ -153,8 +155,6 @@
 <div id="scene" aria-hidden="true"><img src="bg-hills.jpg" alt=""></div>
 <div class="top">
   <h1>Food Log</h1>
-  <button class="copy" onclick="saveFile()">⇩ Save</button>
-  <button class="copy" onclick="copyData()">⇪ Copy</button>
 </div>
 <div id="storeBadge"></div>
 
@@ -183,6 +183,16 @@
     <button class="big" id="endDayBtn" onclick="toggleClose()"></button>
     <button class="clrday" onclick="clearDay()">Clear this day</button>
   </div>
+  <div class="card">
+    <h2>Backup</h2>
+    <div class="backuprow">
+      <button class="copy" onclick="saveFile()">⇩ Save</button>
+      <button class="copy" onclick="copyData()">⇪ Copy</button>
+    </div>
+    <textarea id="imp" placeholder="Paste a full log JSON to restore, or a meal JSON from a photo."></textarea>
+    <button class="primary big" onclick="loadPasted()">Load this data</button>
+    <div class="note">Meals already save on this phone as you log. Save / Copy are off-phone backups. A full log paste replaces what is here — confirm first.</div>
+  </div>
 </section>
 
 <section id="viewGoals" class="view">
@@ -207,14 +217,6 @@
     <div class="histwrap" id="trendChart"></div>
     <div class="histleg" id="histLeg"></div>
     <div class="note" id="histNote"></div>
-  </div>
-  <div class="card">
-    <details>
-      <summary>Import / restore data</summary>
-      <textarea id="imp" placeholder="Paste a full log JSON to restore."></textarea>
-      <button class="primary big" onclick="importData()">Load this data</button>
-      <button class="big" onclick="newDay()">+ Start new day (today)</button>
-    </details>
   </div>
 </section>
 
@@ -498,12 +500,9 @@ function render(){
     groups[k].forEach(({i,idx})=>{
       const d=document.createElement('div');d.className='mitem';
       // no per-item time — the group header above already states it once for the sitting
-      d.innerHTML=`<div class="mmain"><div class="mname">${esc(i.name)}</div>
-        <div class="mmeta"><span class="dot c-${i.confidence}"></span>${i.confidence} &nbsp;·&nbsp; P ${r(i.protein_g)} · F ${r(i.fat_g)} · C ${r(i.carb_g)} · Fib ${r(i.fiber_g)}</div></div>
-        <div class="mkcal">${r(i.kcal)}<small> kcal</small></div>`;
+      d.innerHTML=`<div class="mmain"><span class="mname">${esc(i.name)}</span><span class="msplit">${r(i.protein_g)}P · ${r(i.fat_g)}F · ${r(i.carb_g)}C</span></div>
+        <div class="mkcal">${r(i.kcal)}</div>`;
       if(!i._auto){
-        const mc=document.createElement('button');mc.className='mealchip';mc.textContent=i.meal;mc.title='tap to change meal';mc.onclick=()=>cycleMeal(idx);
-        d.querySelector('.mmain').appendChild(mc);
         const x=document.createElement('button');x.className='rm';x.textContent='×';x.onclick=()=>{DB.days[DB.current].items.splice(idx,1);render();};d.appendChild(x);
       }
       g.appendChild(d);
@@ -854,14 +853,37 @@ function renderTrends(){
 function readNew(){return {name:v('nName'),meal:v('nMeal'),time:v('nTime')||nowTime(),kcal:N(v('nK')),protein_g:N(v('nP')),fat_g:N(v('nF')),carb_g:N(v('nC')),fiber_g:N(v('nFib')),confidence:v('nConf'),notes:v('nNote')};}
 function clearNew(){['nName','nK','nP','nF','nC','nFib','nNote'].forEach(id=>document.getElementById(id).value='');}
 function addNew(){const it=readNew();if(!it.name)return toast('Name required');DB.days[DB.current].items.push(it);clearNew();render();closeAdd();toast('Added');}
-function ingest(){let raw=v('paste');if(!raw)return;try{let o=JSON.parse(cleanJSON(raw));
-  if(o&&o.days){const added=[];Object.keys(o.days).forEach(d=>{const loc=DB.days[d];if(!loc||!loc.items.length){DB.days[d]=o.days[d];added.push(d);}});document.getElementById('paste').value='';render();closeAdd();toast('Imported: '+(added.join(', ')||'no new days'));return;}
+function ingest(){loadFromText(v('paste'),'paste','ingest');}
+function loadPasted(){loadFromText(v('imp'),'imp','restore');}
+function addItemsFrom(o){
   // grams and sodium_mg are carried through when present. grams is what micronutrients
   // scale with; without it the PC has to back mass out of the calories, which fails on
-  // composite dishes. Both are OPTIONAL — absent stays absent rather than becoming 0,
-  // so "not estimated" is distinguishable from "measured zero".
-  const defDay=o.date||DB.current;let a=Array.isArray(o)?o:(o.items||[o]),n=0;a.forEach(x=>{if(!x.name)return;const d=x.date||defDay;if(!DB.days[d])DB.days[d]={status:'in_progress',items:[]};const it={name:x.name,meal:x.meal||'snack',time:x.time||nowTime(),kcal:N(x.kcal),protein_g:N(x.protein_g),fat_g:N(x.fat_g),carb_g:N(x.carb_g),fiber_g:N(x.fiber_g),soluble_fiber_g:N(x.soluble_fiber_g),confidence:x.confidence||'eyeballed',notes:x.notes||''};if(x.sodium_mg!=null&&x.sodium_mg!=='')it.sodium_mg=N(x.sodium_mg);if(x.grams!=null&&x.grams!=='')it.grams=N(x.grams);DB.days[d].items.push(it);n++;});document.getElementById('paste').value='';render();closeAdd();toast(n+' item(s) added');}catch(e){toast('Bad JSON: '+e.message);}}
-function importData(){let raw=v('imp');if(!raw)return;try{const o=JSON.parse(cleanJSON(raw));if(!o.days)return toast('Not a log file');DB=o;DB.current=DB.current||dates().slice(-1)[0];document.getElementById('imp').value='';render();toast('Loaded');}catch(e){toast('Bad JSON: '+e.message);}}
+  // composite dishes. Both are OPTIONAL — absent stays absent rather than becoming 0.
+  const defDay=o.date||DB.current;let a=Array.isArray(o)?o:(o.items||[o]),n=0;
+  a.forEach(x=>{if(!x.name)return;const d=x.date||defDay;if(!DB.days[d])DB.days[d]={status:'in_progress',items:[]};const it={name:x.name,meal:x.meal||'snack',time:x.time||nowTime(),kcal:N(x.kcal),protein_g:N(x.protein_g),fat_g:N(x.fat_g),carb_g:N(x.carb_g),fiber_g:N(x.fiber_g),soluble_fiber_g:N(x.soluble_fiber_g),confidence:x.confidence||'eyeballed',notes:x.notes||''};if(x.sodium_mg!=null&&x.sodium_mg!=='')it.sodium_mg=N(x.sodium_mg);if(x.grams!=null&&x.grams!=='')it.grams=N(x.grams);DB.days[d].items.push(it);n++;});
+  return n;
+}
+function loadFromText(raw,id,mode){
+  if(!raw)return;
+  try{
+    const o=JSON.parse(cleanJSON(raw));
+    const el=document.getElementById(id);
+    if(o&&o.days){
+      if(mode==='restore'){
+        const n=Object.keys(DB.days||{}).filter(d=>(DB.days[d].items||[]).length).length;
+        if(n && !confirm('Replace the '+n+' day(s) on this phone with the pasted log?'))return;
+        DB=o;DB.current=DB.current||dates().slice(-1)[0];
+        if(el)el.value='';
+        render();toast('Loaded');return;
+      }
+      const added=[];Object.keys(o.days).forEach(d=>{const loc=DB.days[d];if(!loc||!loc.items.length){DB.days[d]=o.days[d];added.push(d);}});
+      if(el)el.value='';render();closeAdd();toast('Imported: '+(added.join(', ')||'no new days'));return;
+    }
+    const n=addItemsFrom(o);
+    if(el)el.value='';
+    render();if(mode==='ingest')closeAdd();toast(n+' item(s) added');
+  }catch(e){toast('Bad JSON: '+e.message);}
+}
 function localDate(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function newDay(){const d=localDate();if(!DB.days[d])DB.days[d]={status:'in_progress',items:[]};DB.current=d;render();toast('New day '+d);}
 
