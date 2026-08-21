@@ -101,6 +101,7 @@
   .parttog button.on i{display:none}
   .frow{display:flex;align-items:baseline;gap:9px;padding:7px 0;border-bottom:1px solid var(--line)}
   .frow:last-child{border-bottom:none}
+  .mitem.nomacro .mname,.mitem.nomacro .mkcal{color:var(--muted)}
   .frank{font-size:12.6px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums;min-width:19px}
   .fname{flex:1;min-width:0;font-size:15.8px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .fsub{font-size:12.6px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -543,22 +544,26 @@ function render(){
     // A macro chip is selected: rank the day's foods by who actually contributed it,
     // biggest first. kcal is the exception - it stays chronological, grouped by sitting.
     const fld=chipSel.field;
-    const ranked=items.map((i,idx)=>({i,idx,v:N(i[fld])})).filter(x=>x.v>0.05).sort((a,b)=>b.v-a.v);
+    // Rank, never hide: an item with none of this macro sinks to the bottom greyed out,
+    // because this list is still the day's food log and everything logged must appear.
+    const ranked=items.map((i,idx)=>({i,idx,v:N(i[fld])})).sort((a,b)=>b.v-a.v);
     const tot=ranked.reduce((a,x)=>a+x.v,0)||1;
     const g=document.createElement('div');g.className='mealgrp';
     g.innerHTML=`<div class="mealhead"><span class="gtime">Ranked by ${chipSel.lbl}</span>`
       +`<span>${r(tot)} ${chipSel.unit}</span></div>`;
     ranked.forEach((x,n)=>{
       const d=document.createElement('div');d.className='mitem';
+      const none=x.v<=0.05;
+      if(none)d.classList.add('nomacro');
       d.innerHTML=`<span class="frank">${n+1}</span>`
         +`<div class="mmain"><span class="mname">${esc(x.i.name)}</span>`
-        +`<span class="msplit">${Math.round(x.v/tot*100)}% \u00b7 ${r(x.i.kcal)} kcal</span></div>`
-        +`<div class="mkcal">${r(x.v)}${chipSel.unit==='g'?'g':''}</div>`;
+        +`<span class="msplit">${none?'':`${Math.round(x.v/tot*100)}% \u00b7 `}${r(x.i.kcal)} kcal</span></div>`
+        +`<div class="mkcal">${none?'\u2014':r(x.v)+(chipSel.unit==='g'?'g':'')}</div>`;
       if(!x.i._auto){const b=document.createElement('button');b.className='rm';b.textContent='\u00d7';
         b.onclick=()=>{DB.days[DB.current].items.splice(x.idx,1);render();};d.appendChild(b);}
       g.appendChild(d);
     });
-    if(!ranked.length)g.innerHTML+=`<div class="note">Nothing logged with ${chipSel.lbl} yet.</div>`;
+    if(!ranked.length)g.innerHTML+=`<div class="note">Nothing logged yet.</div>`;
     list.appendChild(g);
   } else {
   const groups={},order=[];
